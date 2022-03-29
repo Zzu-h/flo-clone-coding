@@ -9,9 +9,11 @@ import android.widget.Toast
 import androidx.core.view.isGone
 import com.example.flo.databinding.FragmentAlbumBinding
 import com.example.flo.databinding.ItemAlbumSongBinding
+import com.google.android.material.tabs.TabLayoutMediator
 
 class AlbumFragment : Fragment() {
     lateinit var binding: FragmentAlbumBinding
+    private val information = arrayListOf("수록곡","상세정보","영상")
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -23,24 +25,12 @@ class AlbumFragment : Fragment() {
                 .replace(R.id.main_frm, HomeFragment())
                 .commitAllowingStateLoss()
         }
-        setItemText()
-        binding.songLalacLayout.root.isClickable = false
-        binding.songLalacLayout.root.setOnClickListener { Toast.makeText(activity,"LILAC",Toast.LENGTH_SHORT).show() }
+
+        val albumAdapter = AlbumVPAdapter(this)
+        binding.albumContentVp.adapter = albumAdapter
+        TabLayoutMediator(binding.albumContentTb, binding.albumContentVp){ tab, position -> tab.text = information[position] }
+            .attach()
+
         return binding.root
-    }
-
-    private fun setItemText(){
-        binding.songLalacLayout
-        setItemAlbumSongText(binding.songLalacLayout, 1, "라일락", false, "가수")
-        setItemAlbumSongText(binding.songFluLayout, 2, "Flu", true, "가수")
-        setItemAlbumSongText(binding.songCoinLayout, 3, "Coin", false, "가수")
-        setItemAlbumSongText(binding.songSpringLayout, 4, "봄 안녕 봄", true, "가수")
-    }
-
-    private fun setItemAlbumSongText(view: ItemAlbumSongBinding, index: Int, title: String, isNotTitle: Boolean, singer: String){
-        view.itemSongTitleTv.text = title
-        view.isTitleTv.isGone = isNotTitle
-        view.itemSongSingerTv.text = singer
-        view.itemSongIndex.text = "0$index"
     }
 }

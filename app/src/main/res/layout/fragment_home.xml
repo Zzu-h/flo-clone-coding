@@ -223,7 +223,7 @@
             android:orientation="horizontal"
             app:layout_constraintTop_toBottomOf="@id/home_today_music_total_tv"/>
 
-        <!--<androidx.viewpager2.widget.ViewPager2
+        <androidx.viewpager2.widget.ViewPager2
             android:id="@+id/home_banner_vp"
             android:layout_width="match_parent"
             android:layout_height="100dp"
@@ -232,7 +232,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/home_today_music_album_rv"/>
 
-        <TextView
+        <!--<TextView
             android:id="@+id/home_daily_music_title_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
