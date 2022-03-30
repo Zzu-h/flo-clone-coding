@@ -1,14 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:paddingLeft="15dp"
+    android:paddingRight="15dp"
+    android:orientation="vertical"
     tools:context=".VideoFragment">
 
-    <!-- TODO: Update blank fragment layout -->
     <TextView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:id="@+id/align_spinner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
 
-</FrameLayout>
+        android:text="최신순 ▼"
+        android:textColor="@color/black"
+        android:textSize="@dimen/detail_info_text_size"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <LinearLayout
+        android:id="@+id/video_item"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintTop_toBottomOf="@id/align_spinner"
+        >
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="220dp"
+            android:scaleType="fitStart"
+            android:src="@drawable/img_video_exp"
+
+            />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="[MV] 라일락 (Lilac)"
+            android:textColor="@color/black"
+            android:textSize="13sp"
+            />
+        <TextView
+            android:id="@+id/album_info_tv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="아이유 (IU) | 2021.03.26"
+            android:textSize="11sp"
+            />
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
