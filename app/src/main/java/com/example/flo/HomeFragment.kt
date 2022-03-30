@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import com.example.flo.databinding.FragmentHomeBinding
 import com.example.flo.databinding.ItemAlbumBinding
+import com.google.android.material.tabs.TabLayoutMediator
 import java.util.ArrayList
 
 class HomeFragment : Fragment() {
@@ -22,12 +23,31 @@ class HomeFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentHomeBinding.inflate(inflater, container, false)
-        binding.homePannelAlbumImg01Iv.setOnClickListener {
-            requireActivity().supportFragmentManager.beginTransaction()
-                .replace(R.id.main_frm, AlbumFragment())
-                .addToBackStack(null)
-                .commitAllowingStateLoss()
-        }
+
+        setRecyclerView()
+        setViewPager()
+
+        return binding.root
+    }
+    private fun setViewPager(){
+        val bannerAdapter = BannerVPAdapter(this)
+        bannerAdapter.addFragment(BannerFragment())
+        bannerAdapter.addFragment(BannerFragment(R.drawable.img_home_viewpager_exp2))
+        binding.homeBannerVp.adapter = bannerAdapter
+        binding.homeBannerVp.orientation = ViewPager2.ORIENTATION_HORIZONTAL
+
+        val PanelAdapter = PanelVPAdapter(this)
+        PanelAdapter.addFragment(PanelFragment())
+        PanelAdapter.addFragment(PanelFragment(R.drawable.img_album_exp6))
+        PanelAdapter.addFragment(PanelFragment(R.drawable.img_album_exp5))
+
+        binding.homePanelBackgroundVp.adapter = PanelAdapter
+        binding.homePanelBackgroundVp.orientation = ViewPager2.ORIENTATION_HORIZONTAL
+        binding.homePanelViewpagerCi.setViewPager(binding.homePanelBackgroundVp, R.drawable.default_dot, R.drawable.selected_dot)
+        /*TabLayoutMediator(binding.homePanelViewpagerCi, binding.homePanelBackgroundVp){ tab, position -> tab.text }
+            .attach()*/
+    }
+    private fun setRecyclerView(){
         albumList.add(Album())
         albumList.add(Album(coverImg = R.drawable.img_album_exp))
         albumList.add(Album(coverImg = R.drawable.img_album_exp4))
@@ -35,14 +55,6 @@ class HomeFragment : Fragment() {
         albumList.add(Album(coverImg = R.drawable.img_album_exp5))
 
         binding.homeTodayMusicAlbumRv.adapter = AlbumAdapter(albumList)
-
-        val bannerAdapter = BannerVPAdapter(this)
-        bannerAdapter.addFragment(BannerFragment())
-        bannerAdapter.addFragment(BannerFragment(R.drawable.img_home_viewpager_exp2))
-        binding.homeBannerVp.adapter = bannerAdapter
-        binding.homeBannerVp.orientation = ViewPager2.ORIENTATION_HORIZONTAL
-
-        return binding.root
     }
 }
 
