@@ -4,17 +4,23 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.size
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import com.example.flo.databinding.FragmentHomeBinding
 import com.example.flo.databinding.ItemAlbumBinding
 import com.google.android.material.tabs.TabLayoutMediator
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.util.ArrayList
 
 class HomeFragment : Fragment() {
 
     lateinit var binding: FragmentHomeBinding
+    private val autoScrollDelayTime = 3000L
     var albumList = ArrayList<Album>()
 
     override fun onCreateView(
@@ -44,8 +50,23 @@ class HomeFragment : Fragment() {
         binding.homePanelBackgroundVp.adapter = PanelAdapter
         binding.homePanelBackgroundVp.orientation = ViewPager2.ORIENTATION_HORIZONTAL
         binding.homePanelViewpagerCi.setViewPager(binding.homePanelBackgroundVp, R.drawable.default_dot, R.drawable.selected_dot)
-        /*TabLayoutMediator(binding.homePanelViewpagerCi, binding.homePanelBackgroundVp){ tab, position -> tab.text }
-            .attach()*/
+
+        CoroutineScope(Dispatchers.Main).launch {
+            while(true){
+                delay(autoScrollDelayTime)
+                val size = binding.homePanelBackgroundVp.adapter!!.itemCount
+                val currentIdx = binding.homePanelBackgroundVp.currentItem
+                binding.homePanelBackgroundVp.currentItem = (currentIdx + 1) % size
+            }
+        }
+        CoroutineScope(Dispatchers.Main).launch {
+            while(true){
+                delay(autoScrollDelayTime)
+                val size = binding.homeBannerVp.adapter!!.itemCount
+                val currentIdx = binding.homeBannerVp.currentItem
+                binding.homeBannerVp.currentItem = (currentIdx + 1) % size
+            }
+        }
     }
     private fun setRecyclerView(){
         albumList.add(Album())
