@@ -1,12 +1,13 @@
 package com.example.flo
 
 import android.content.Intent
+import android.media.MediaPlayer
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.ImageView
 import com.example.flo.databinding.ActivityMainBinding
+import com.google.gson.Gson
 import java.lang.Exception
 
 class MainActivity : AppCompatActivity() {
@@ -16,15 +17,15 @@ class MainActivity : AppCompatActivity() {
     private var timer: MainActivity.Timer? = null
     private val aniDuration = 300L
 
+    private val gson = Gson()
+    private var mediaPlayer: MediaPlayer? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.Theme_FLO)
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        //ViewCompat.getWindowInsetsController(this.window.decorView)?.hide(WindowInsetsCompat.Type.systemBars())
 
-        song = Song(binding.mainMiniplayerTitleTv.text.toString(), binding.mainMiniplayerSingerTv.text.toString(),0,60, false)
-        setPlayer(song)
         initClickListener()
 
         initBottomNavigation()
@@ -37,6 +38,30 @@ class MainActivity : AppCompatActivity() {
             intent.putExtra("song", song)
             startActivity(intent)
         }
+    }
+    override fun onStart() {
+        super.onStart()
+        val sharedPreference = getSharedPreferences("song", MODE_PRIVATE)
+        val songJson = sharedPreference.getString("songData", null)
+
+        song = if(songJson != null) gson.fromJson(songJson, Song::class.java)
+            else Song(binding.mainMiniplayerTitleTv.text.toString(), binding.mainMiniplayerSingerTv.text.toString(),0,60, false, 0f, "music_lilac")
+
+        setMiniPlayer(song)
+    }
+    override fun onPause() {
+        super.onPause()
+        setPlayerStatus(false)
+        val sharedPreference = getSharedPreferences("song", MODE_PRIVATE)
+        val edit = sharedPreference.edit()
+
+        edit.putString("songData", gson.toJson(song))
+        edit.apply()
+    }
+    override fun onDestroy() {
+        super.onDestroy()
+        timer?.interrupt()
+        mediaPlayer?.release()
     }
 
     private fun initBottomNavigation(){
@@ -86,10 +111,14 @@ class MainActivity : AppCompatActivity() {
         timer?.timerStop()
     }
 
-    private fun setPlayer(song: Song){
+    private fun setMiniPlayer(song: Song){
+        val music = resources.getIdentifier(song.music, "raw", this.packageName)
+        mediaPlayer = MediaPlayer.create(this, music)
+
         binding.mainMiniplayerTitleTv.text = song.title
         binding.mainMiniplayerSingerTv.text = song.singer
-        binding.songProgressSb.progress = (song.second * 1000 / song.playTime)
+        binding.songProgressSb.progress = (song.second * 100000 / song.playTime)
+
         setPlayerStatus(song.isPlaying)
     }
     private fun initClickListener(){
@@ -121,6 +150,11 @@ class MainActivity : AppCompatActivity() {
             binding.mainMiniplayerBtn.animate().apply {
                 rotationYBy(-90f)
             }.start()
+
+            mediaPlayer?.apply {
+                this.seekTo(song.mills.toInt())
+                start()
+            }
         } else {
             stopTimer()
 
@@ -141,6 +175,9 @@ class MainActivity : AppCompatActivity() {
             binding.mainPauseBtn.animate().apply {
                 rotationYBy(-90f)
             }.start()
+
+            if(mediaPlayer?.isPlaying == true)
+                mediaPlayer?.pause()
         }
     }
     private fun aniBigSmall(view: ImageView){

@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:drawable="@drawable/ic_flo_logo"/>
+    <item>
+        <bitmap android:src="@mipmap/ic_flo_launcher_foreground" />
+    </item>
 </layer-list>
