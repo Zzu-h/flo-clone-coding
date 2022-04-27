@@ -23,6 +23,13 @@
             android:layout_marginLeft="15dp"
             android:text="▷ 전체듣기"
             android:textSize="@dimen/detail_info_text_size" />
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="편집"
+            android:gravity="end|right"
+            android:textSize="@dimen/detail_info_text_size" />
     </LinearLayout>
 
     <TextView

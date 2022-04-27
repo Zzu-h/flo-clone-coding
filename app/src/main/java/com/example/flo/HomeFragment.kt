@@ -4,13 +4,15 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.view.size
 import androidx.fragment.app.Fragment
-import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
+import com.example.flo.adapter.AlbumRVAdapter
+import com.example.flo.adapter.BannerVPAdapter
+import com.example.flo.adapter.PanelVPAdapter
+import com.example.flo.vo.Album
 import com.example.flo.databinding.FragmentHomeBinding
-import com.example.flo.databinding.ItemAlbumBinding
-import com.google.android.material.tabs.TabLayoutMediator
+import com.example.flo.vo.Song
+import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -21,7 +23,7 @@ class HomeFragment : Fragment() {
 
     lateinit var binding: FragmentHomeBinding
     private val autoScrollDelayTime = 3000L
-    var albumList = ArrayList<Album>()
+    private var albumDatas = ArrayList<Album>()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -69,37 +71,61 @@ class HomeFragment : Fragment() {
         }
     }
     private fun setRecyclerView(){
-        albumList.add(Album())
-        albumList.add(Album(coverImg = R.drawable.img_album_exp))
-        albumList.add(Album(coverImg = R.drawable.img_album_exp4))
-        albumList.add(Album(coverImg = R.drawable.img_album_exp3))
-        albumList.add(Album(coverImg = R.drawable.img_album_exp5))
+        albumDatas.add(Album(
+            songs = ArrayList<Song>(5).apply {
+                add(Song("라일락", "아이유 (IU)", 0, 60, false, 0f, "music_lilac", isTitle = true))
+                add(Song("Flu", "아이유 (IU)", 0, 60, false, 0f, "music_flu", isTitle = false))
+                add(Song("Coin", "아이유 (IU)", 0, 60, false, 0f, "music_coin", isTitle = true))
+                add(Song("봄 안녕 봄", "아이유 (IU)", 0, 60, false, 0f, "music_hispringbye", isTitle = false))
+            }
+        ))
+        albumDatas.add(Album(coverImg = R.drawable.img_album_exp,
+            songs = ArrayList<Song>(5).apply {
+                add(Song("봄 안녕 봄", "아이유 (IU)", 0, 60, false, 0f, "music_hispringbye", isTitle = false))
+            },
+            title = "봄 안녕 봄",
+            singer = "IU"
+        ))
+        albumDatas.add(Album(coverImg = R.drawable.img_album_exp4,
+            songs = ArrayList<Song>(5).apply {
+                add(Song("Coin", "아이유 (IU)", 0, 60, false, 0f, "music_coin", isTitle = true))
+            },
+            title = "Coin",
+            singer = "아이유"
+        ))
+        albumDatas.add(Album(coverImg = R.drawable.img_album_exp3,
+            songs = ArrayList<Song>(5).apply {
+                add(Song("Flu", "아이유 (IU)", 0, 60, false, 0f, "music_flu", isTitle = false))
+            },
+            title = "Flu",
+            singer = "아이유 (IU)"
+        ))
+        albumDatas.add(Album(coverImg = R.drawable.img_album_exp5,
+            songs = ArrayList<Song>(5).apply {
+                add(Song("라일락", "아이유 (IU)", 0, 60, false, 0f, "music_lilac", isTitle = true))
+            }
+        ))
 
-        binding.homeTodayMusicAlbumRv.adapter = AlbumAdapter(albumList)
+        binding.homeTodayMusicAlbumRv.adapter = AlbumRVAdapter(albumDatas)
+            .apply {
+                onItemClick = this@HomeFragment::albumItemClick
+                playAlbum = this@HomeFragment::playAlbum
+            }
     }
-}
+    private fun playAlbum(album: Album)
+        = (context as MainActivity).playAlbum(album)
 
-data class Album(
-    val title: String = "Lilac",
-    val singer: String = "IU",
-    val coverImg: Int = R.drawable.img_album_exp2
-)
-
-class AlbumAdapter(private val albumList: ArrayList<Album>) : RecyclerView.Adapter<AlbumAdapter.ViewHolder>(){
-
-    override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): AlbumAdapter.ViewHolder
-        = ViewHolder(ItemAlbumBinding.inflate(LayoutInflater.from(viewGroup.context), viewGroup, false))
-
-    override fun onBindViewHolder(holder: AlbumAdapter.ViewHolder, position: Int)
-        = holder.bind(albumList[position])
-
-    override fun getItemCount(): Int = albumList.size
-
-    inner class ViewHolder(val binding: ItemAlbumBinding): RecyclerView.ViewHolder(binding.root){
-        fun bind(album: Album){
-            binding.itemAlbumTitleTv.text = album.title
-            binding.itemAlbumSingerTv.text = album.singer
-            binding.itemAlbumCoverImgIv.setImageResource(album.coverImg)
-        }
+    private fun albumItemClick(album: Album){
+        (context as MainActivity).supportFragmentManager.beginTransaction()
+            .replace(R.id.main_frm, AlbumFragment()
+                .apply {
+                    arguments = Bundle().apply {
+                        val gson = Gson()
+                        val albumJson = gson.toJson(album)
+                        putString(CODE.album, albumJson)
+                    }
+                }
+            )
+            .commitAllowingStateLoss()
     }
 }

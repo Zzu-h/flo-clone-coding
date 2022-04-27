@@ -4,9 +4,10 @@ import android.media.MediaPlayer
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.example.flo.vo.Song
 import com.example.flo.databinding.ActivitySongBinding
+import com.example.flo.vo.PlayList
 import com.google.gson.Gson
 import java.lang.Exception
 
@@ -15,6 +16,7 @@ class SongActivity : AppCompatActivity() {
     //전역 변수
     lateinit var binding : ActivitySongBinding
     lateinit var song: Song
+    lateinit var playList: PlayList
     private var timer: Timer? = null
     private val aniDuration = 300L
 
@@ -25,10 +27,13 @@ class SongActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivitySongBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        if(intent.hasExtra("song")) song = intent.getSerializableExtra("song") as Song
+        if(intent.hasExtra(CODE.play_list)) {
+            val playListJson = intent.getStringExtra(CODE.play_list)
+            playList = gson.fromJson(playListJson, PlayList::class.java)
+        }
         else finish()
-        setPlayer(song
-        )
+        song = playList.currentSong
+        setPlayer(song)
 
         initClickListener()
     }
@@ -38,38 +43,66 @@ class SongActivity : AppCompatActivity() {
     }
     private fun stopTimer() {
         if(timer == null) return
-        timer?.timerStop()
+        timer?.interrupt()
+    }
+    private fun prevMusic(){
+        val size = playList.playList.size
+        playList.index = ((playList.index - 1) + size).mod(size)
+        playList.currentSong = playList.playList[playList.index]
+        playList.currentSong.isPlaying = true
+        setPlayer(playList.currentSong)
+    }
+    private fun nextMusic(){
+        val size = playList.playList.size
+        playList.index = (playList.index + 1).mod(size)
+        playList.currentSong = playList.playList[playList.index]
+        playList.currentSong.isPlaying = true
+        setPlayer(playList.currentSong)
     }
 
-    private fun setPlayer(song: Song){
-        val music = resources.getIdentifier(song.music, "raw", this.packageName)
+    private fun setPlayer(playerSong: Song){
+        mediaPlayer?.apply {
+            stopTimer()
+            if(mediaPlayer!!.isPlaying) mediaPlayer!!.stop()
+            mediaPlayer = null
+            song = playerSong
+            song.mills = 0f
+            song.second = 0
+        }
+        val music = resources.getIdentifier(playerSong.music, "raw", this.packageName)
         mediaPlayer = MediaPlayer.create(this, music)
-        mediaPlayer?.apply { song.playTime = this.duration/1000 }
+        mediaPlayer?.apply { playerSong.playTime = this.duration/1000 }
 
-        binding.songMusicTitleTv.text = song.title
-        binding.songSingerNameTv.text = song.singer
-        binding.songStartTimeTv.text = String.format("%02d:%02d", song.second / 60, song.second % 60)
-        binding.songEndTimeTv.text = String.format("%02d:%02d", song.playTime / 60, song.playTime % 60)
-        binding.songProgressSb.progress = (song.second * 100000 / song.playTime)
+        binding.songMusicTitleTv.text = playerSong.title
+        binding.songSingerNameTv.text = playerSong.singer
+        binding.songStartTimeTv.text = String.format("%02d:%02d", playerSong.second / 60, playerSong.second % 60)
+        binding.songEndTimeTv.text = String.format("%02d:%02d", playerSong.playTime / 60, playerSong.playTime % 60)
+        binding.songProgressSb.progress = (playerSong.second * 100000 / playerSong.playTime)
 
-        setPlayerStatus(song.isPlaying)
+        setPlayerStatus(playerSong.isPlaying)
     }
     private fun initClickListener(){
         binding.songDownIb.setOnClickListener { finish() }
         binding.songMiniplayerIv.setOnClickListener { setPlayerStatus(true) }
         binding.songPauseIv.setOnClickListener { setPlayerStatus(false) }
-        binding.songNextIv.setOnClickListener { aniBigSmall(binding.songNextIv) }
-        binding.songPreviousIv.setOnClickListener { aniBigSmall(binding.songPreviousIv) }
+        binding.songNextIv.setOnClickListener {
+            aniBigSmall(binding.songNextIv)
+            nextMusic()
+        }
+        binding.songPreviousIv.setOnClickListener {
+            aniBigSmall(binding.songPreviousIv)
+            prevMusic()
+        }
     }
 
     // 사용자가 포커스를 잃었을 때 음악 중지
     override fun onPause() {
         super.onPause()
         //setPlayerStatus(false)
-        val sharedPreference = getSharedPreferences("song", MODE_PRIVATE)
+        val sharedPreference = getSharedPreferences(CODE.music, MODE_PRIVATE)
         val edit = sharedPreference.edit()
 
-        edit.putString("songData", gson.toJson(song))
+        edit.putString(CODE.play_list, gson.toJson(playList))
         edit.apply()
     }
     override fun onDestroy() {
@@ -159,6 +192,7 @@ class SongActivity : AppCompatActivity() {
                     if(second >= playTime) {
                         song.mills = 0f
                         song.second = 0
+                        this@SongActivity.nextMusic()
                         this@SongActivity.setPlayerStatus(false)
                         break
                     }

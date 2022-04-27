@@ -5,15 +5,16 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
-import androidx.core.view.isGone
+import com.example.flo.adapter.AlbumVPAdapter
+import com.example.flo.vo.Album
 import com.example.flo.databinding.FragmentAlbumBinding
-import com.example.flo.databinding.ItemAlbumSongBinding
 import com.google.android.material.tabs.TabLayoutMediator
+import com.google.gson.Gson
 
 class AlbumFragment : Fragment() {
     lateinit var binding: FragmentAlbumBinding
     private val information = arrayListOf("수록곡","상세정보","영상")
+    private var gson = Gson()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -25,8 +26,20 @@ class AlbumFragment : Fragment() {
                 .replace(R.id.main_frm, HomeFragment())
                 .commitAllowingStateLoss()
         }
+        val album = gson.fromJson(arguments?.getString(CODE.album), Album::class.java)
+        album?.apply {
+            binding.albumAlbumIv.setImageResource(album.coverImg)
+            binding.albumMusicTitleTv.text = album.title
+            binding.albumSingerNameTv.text = album.singer
+        }
 
         val albumAdapter = AlbumVPAdapter(this)
+            .apply {
+                songFragment.arguments = Bundle().apply {
+                    val albumJson = gson.toJson(album)
+                    putString(CODE.album, albumJson)
+                }
+            }
         binding.albumContentVp.adapter = albumAdapter
         TabLayoutMediator(binding.albumContentTb, binding.albumContentVp){ tab, position -> tab.text = information[position] }
             .attach()

@@ -96,21 +96,25 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@+id/song_all_select_tv" />
 
-        <LinearLayout
-            android:id="@+id/song_music_list_layout"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/song_music_list_rv"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
             android:orientation="vertical"
+            tools:itemCount="4"
+            tools:listitem="@layout/item_album_song"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/song_all_select_tv">
 
-            <include layout="@layout/item_album_song" android:id="@+id/song_lalac_layout"/>
+
+            <!--<include layout="@layout/item_album_song" android:id="@+id/song_lalac_layout"/>
             <include layout="@layout/item_album_song" android:id="@+id/song_flu_layout"/>
             <include layout="@layout/item_album_song" android:id="@+id/song_coin_layout"/>
-            <include layout="@layout/item_album_song" android:id="@+id/song_spring_layout"/>
-        </LinearLayout>
+            <include layout="@layout/item_album_song" android:id="@+id/song_spring_layout"/>-->
+        </androidx.recyclerview.widget.RecyclerView>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
