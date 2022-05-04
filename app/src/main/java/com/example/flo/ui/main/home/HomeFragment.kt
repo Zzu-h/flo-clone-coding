@@ -1,4 +1,4 @@
-package com.example.flo
+package com.example.flo.ui.main.home
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -6,11 +6,15 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.widget.ViewPager2
-import com.example.flo.adapter.AlbumRVAdapter
-import com.example.flo.adapter.BannerVPAdapter
-import com.example.flo.adapter.PanelVPAdapter
+import com.example.flo.R
+import com.example.flo.ui.main.home.adapter.AlbumRVAdapter
+import com.example.flo.ui.main.home.adapter.BannerVPAdapter
+import com.example.flo.ui.main.home.adapter.PanelVPAdapter
 import com.example.flo.vo.Album
 import com.example.flo.databinding.FragmentHomeBinding
+import com.example.flo.ui.main.CODE
+import com.example.flo.ui.main.MainActivity
+import com.example.flo.ui.album.AlbumFragment
 import com.example.flo.vo.Song
 import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
@@ -51,7 +55,10 @@ class HomeFragment : Fragment() {
 
         binding.homePanelBackgroundVp.adapter = PanelAdapter
         binding.homePanelBackgroundVp.orientation = ViewPager2.ORIENTATION_HORIZONTAL
-        binding.homePanelViewpagerCi.setViewPager(binding.homePanelBackgroundVp, R.drawable.default_dot, R.drawable.selected_dot)
+        binding.homePanelViewpagerCi.setViewPager(binding.homePanelBackgroundVp,
+            R.drawable.default_dot,
+            R.drawable.selected_dot
+        )
 
         CoroutineScope(Dispatchers.Main).launch {
             while(true){
@@ -117,7 +124,8 @@ class HomeFragment : Fragment() {
 
     private fun albumItemClick(album: Album){
         (context as MainActivity).supportFragmentManager.beginTransaction()
-            .replace(R.id.main_frm, AlbumFragment()
+            .replace(
+                R.id.main_frm, AlbumFragment()
                 .apply {
                     arguments = Bundle().apply {
                         val gson = Gson()

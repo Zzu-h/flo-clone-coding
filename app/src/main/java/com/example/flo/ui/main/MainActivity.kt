@@ -1,4 +1,4 @@
-package com.example.flo
+package com.example.flo.ui.main
 
 import android.content.Intent
 import android.media.MediaPlayer
@@ -6,9 +6,14 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
-import android.widget.Toast
+import com.example.flo.R
 import com.example.flo.vo.Song
 import com.example.flo.databinding.ActivityMainBinding
+import com.example.flo.ui.main.home.HomeFragment
+import com.example.flo.ui.main.locker.LockerFragment
+import com.example.flo.ui.main.look.LookFragment
+import com.example.flo.ui.main.search.SearchFragment
+import com.example.flo.ui.song.SongActivity
 import com.example.flo.vo.Album
 import com.example.flo.vo.PlayList
 import com.google.gson.Gson
@@ -27,7 +32,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var song: Song
     lateinit var playList: PlayList
 
-    private var timer: MainActivity.Timer? = null
+    private var timer: Timer? = null
     private val aniDuration = 300L
 
     private val gson = Gson()

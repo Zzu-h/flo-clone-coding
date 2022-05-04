@@ -1,10 +1,11 @@
-package com.example.flo
+package com.example.flo.ui.song
 
 import android.media.MediaPlayer
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
+import com.example.flo.ui.main.CODE
 import com.example.flo.vo.Song
 import com.example.flo.databinding.ActivitySongBinding
 import com.example.flo.vo.PlayList

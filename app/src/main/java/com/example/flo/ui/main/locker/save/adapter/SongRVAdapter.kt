@@ -1,4 +1,4 @@
-package com.example.flo.adapter
+package com.example.flo.ui.main.locker.save.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup

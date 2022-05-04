@@ -13,10 +13,10 @@
             android:name=".SplashActivity"
             android:exported="false" />
         <activity
-            android:name=".SongActivity"
+            android:name=".ui.song.SongActivity"
             android:exported="false" />
         <activity
-            android:name=".MainActivity"
+            android:name=".ui.main.MainActivity"
             android:exported="true"
             android:theme="@style/SplashTheme">
             <intent-filter>

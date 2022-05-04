@@ -1,4 +1,4 @@
-package com.example.flo
+package com.example.flo.ui.main.locker.save
 
 import android.database.Cursor
 import android.os.Bundle
@@ -9,9 +9,11 @@ import android.view.ViewGroup
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
-import com.example.flo.adapter.SongRVAdapter
+import com.example.flo.R
+import com.example.flo.ui.main.locker.save.adapter.SongRVAdapter
 import com.example.flo.vo.Song
 import com.example.flo.databinding.FragmentSaveSongBinding
+import com.example.flo.ui.main.MainActivity
 
 
 class SaveSongFragment : Fragment() {

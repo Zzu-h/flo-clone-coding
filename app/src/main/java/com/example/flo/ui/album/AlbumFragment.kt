@@ -1,13 +1,15 @@
-package com.example.flo
+package com.example.flo.ui.album
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.example.flo.adapter.AlbumVPAdapter
+import com.example.flo.R
 import com.example.flo.vo.Album
 import com.example.flo.databinding.FragmentAlbumBinding
+import com.example.flo.ui.main.CODE
+import com.example.flo.ui.main.home.HomeFragment
 import com.google.android.material.tabs.TabLayoutMediator
 import com.google.gson.Gson
 

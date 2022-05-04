@@ -1,11 +1,9 @@
-package com.example.flo.adapter
+package com.example.flo.ui.album.song.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.view.isGone
 import androidx.recyclerview.widget.RecyclerView
-import com.example.flo.vo.Album
-import com.example.flo.databinding.ItemAlbumBinding
 import com.example.flo.databinding.ItemAlbumSongBinding
 import com.example.flo.vo.Song
 import java.util.ArrayList

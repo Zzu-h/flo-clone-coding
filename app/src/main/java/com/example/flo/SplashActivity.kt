@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import com.example.flo.databinding.ActivitySplashBinding
+import com.example.flo.ui.main.MainActivity
 
 @Deprecated("not use splash activity")
 class SplashActivity : AppCompatActivity() {
