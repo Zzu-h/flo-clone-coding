@@ -1,4 +1,4 @@
-package com.example.flo
+package com.example.flo.ui
 
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity

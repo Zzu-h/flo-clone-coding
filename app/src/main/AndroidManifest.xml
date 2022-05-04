@@ -10,7 +10,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.FLO">
         <activity
-            android:name=".SplashActivity"
+            android:name=".ui.SplashActivity"
             android:exported="false" />
         <activity
             android:name=".ui.song.SongActivity"
