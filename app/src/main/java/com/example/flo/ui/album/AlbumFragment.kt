@@ -6,7 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.example.flo.R
-import com.example.flo.vo.Album
+import com.example.flo.data.vo.Album
 import com.example.flo.databinding.FragmentAlbumBinding
 import com.example.flo.ui.main.CODE
 import com.example.flo.ui.main.home.HomeFragment

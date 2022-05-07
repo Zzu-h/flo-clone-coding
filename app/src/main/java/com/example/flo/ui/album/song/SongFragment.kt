@@ -9,7 +9,7 @@ import android.view.ViewGroup
 import com.example.flo.ui.album.song.adapter.TrackRVAdapter
 import com.example.flo.databinding.FragmentSongBinding
 import com.example.flo.ui.main.CODE
-import com.example.flo.vo.Album
+import com.example.flo.data.vo.Album
 import com.google.gson.Gson
 
 class SongFragment : Fragment() {

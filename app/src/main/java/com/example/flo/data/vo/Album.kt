@@ -1,4 +1,4 @@
-package com.example.flo.vo
+package com.example.flo.data.vo
 
 import com.example.flo.R
 import java.util.ArrayList

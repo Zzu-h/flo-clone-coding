@@ -1,4 +1,4 @@
-package com.example.flo.vo
+package com.example.flo.data.vo
 
 data class PlayList(
     var playList: ArrayList<Song>,

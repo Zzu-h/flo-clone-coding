@@ -3,7 +3,7 @@
     package="com.example.flo">
 
     <application
-        android:allowBackup="true"
+        android:allowBackup="false"
         android:icon="@mipmap/ic_flo_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_flo_launcher_round"

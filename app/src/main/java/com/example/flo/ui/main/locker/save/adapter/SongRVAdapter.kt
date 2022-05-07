@@ -3,7 +3,7 @@ package com.example.flo.ui.main.locker.save.adapter
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.example.flo.vo.Song
+import com.example.flo.data.vo.Song
 import com.example.flo.databinding.ItemSongBinding
 
 class SongRVAdapter(private val albumList: ArrayList<Song>) : RecyclerView.Adapter<SongRVAdapter.ViewHolder>(){

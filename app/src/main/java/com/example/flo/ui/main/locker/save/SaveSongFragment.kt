@@ -11,7 +11,7 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import com.example.flo.R
 import com.example.flo.ui.main.locker.save.adapter.SongRVAdapter
-import com.example.flo.vo.Song
+import com.example.flo.data.vo.Song
 import com.example.flo.databinding.FragmentSaveSongBinding
 import com.example.flo.ui.main.MainActivity
 

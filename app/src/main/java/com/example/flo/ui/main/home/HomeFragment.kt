@@ -10,12 +10,12 @@ import com.example.flo.R
 import com.example.flo.ui.main.home.adapter.AlbumRVAdapter
 import com.example.flo.ui.main.home.adapter.BannerVPAdapter
 import com.example.flo.ui.main.home.adapter.PanelVPAdapter
-import com.example.flo.vo.Album
+import com.example.flo.data.vo.Album
 import com.example.flo.databinding.FragmentHomeBinding
 import com.example.flo.ui.main.CODE
 import com.example.flo.ui.main.MainActivity
 import com.example.flo.ui.album.AlbumFragment
-import com.example.flo.vo.Song
+import com.example.flo.data.vo.Song
 import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -86,27 +86,33 @@ class HomeFragment : Fragment() {
                 add(Song("봄 안녕 봄", "아이유 (IU)", 0, 60, false, 0f, "music_hispringbye", isTitle = false))
             }
         ))
-        albumDatas.add(Album(coverImg = R.drawable.img_album_exp,
+        albumDatas.add(
+            Album(coverImg = R.drawable.img_album_exp,
             songs = ArrayList<Song>(5).apply {
                 add(Song("봄 안녕 봄", "아이유 (IU)", 0, 60, false, 0f, "music_hispringbye", isTitle = false))
             },
             title = "봄 안녕 봄",
             singer = "IU"
-        ))
-        albumDatas.add(Album(coverImg = R.drawable.img_album_exp4,
+        )
+        )
+        albumDatas.add(
+            Album(coverImg = R.drawable.img_album_exp4,
             songs = ArrayList<Song>(5).apply {
                 add(Song("Coin", "아이유 (IU)", 0, 60, false, 0f, "music_coin", isTitle = true))
             },
             title = "Coin",
             singer = "아이유"
-        ))
-        albumDatas.add(Album(coverImg = R.drawable.img_album_exp3,
+        )
+        )
+        albumDatas.add(
+            Album(coverImg = R.drawable.img_album_exp3,
             songs = ArrayList<Song>(5).apply {
                 add(Song("Flu", "아이유 (IU)", 0, 60, false, 0f, "music_flu", isTitle = false))
             },
             title = "Flu",
             singer = "아이유 (IU)"
-        ))
+        )
+        )
         albumDatas.add(Album(coverImg = R.drawable.img_album_exp5,
             songs = ArrayList<Song>(5).apply {
                 add(Song("라일락", "아이유 (IU)", 0, 60, false, 0f, "music_lilac", isTitle = true))

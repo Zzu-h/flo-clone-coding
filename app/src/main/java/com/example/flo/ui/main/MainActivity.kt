@@ -4,25 +4,32 @@ import android.content.Intent
 import android.media.MediaPlayer
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.ImageView
 import com.example.flo.R
-import com.example.flo.vo.Song
+import com.example.flo.data.model.SongDatabase
+import com.example.flo.data.vo.Song
 import com.example.flo.databinding.ActivityMainBinding
 import com.example.flo.ui.main.home.HomeFragment
 import com.example.flo.ui.main.locker.LockerFragment
 import com.example.flo.ui.main.look.LookFragment
 import com.example.flo.ui.main.search.SearchFragment
 import com.example.flo.ui.song.SongActivity
-import com.example.flo.vo.Album
-import com.example.flo.vo.PlayList
+import com.example.flo.data.vo.Album
+import com.example.flo.data.vo.PlayList
+import com.example.flo.ui.main.CODE.songID
 import com.google.gson.Gson
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.lang.Exception
 
 object CODE {
     const val music = "Song"
     const val play_list = "PlayList"
     const val album = "album"
+    const val songID = "songId"
 }
 
 class MainActivity : AppCompatActivity() {
@@ -43,6 +50,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        inputDummySongs()
 
         initClickListener()
 
@@ -51,8 +59,9 @@ class MainActivity : AppCompatActivity() {
         binding.mainPlayerCl.setOnClickListener { startActivity(Intent(this, SongActivity::class.java)) }
         binding.mainPlayerCl.setOnClickListener {
             val intent = Intent(this, SongActivity::class.java)
-            /*intent.putExtra("title", song.title)
-            intent.putExtra("singer", song.singer)*/
+            val editor = getSharedPreferences(CODE.music, MODE_PRIVATE).edit()
+            editor.putInt(CODE.songID, song.id)
+            editor.apply()
 
             val sendPlayList = gson.toJson(playList)
             intent.putExtra(CODE.play_list, sendPlayList)
@@ -62,12 +71,19 @@ class MainActivity : AppCompatActivity() {
     }
     override fun onStart() {
         super.onStart()
-        val sharedPreference = getSharedPreferences(CODE.music, MODE_PRIVATE)
+        /*val sharedPreference = getSharedPreferences(CODE.music, MODE_PRIVATE)
         val songJson = sharedPreference.getString(CODE.play_list, null)
 
         playList = if(songJson != null) gson.fromJson(songJson, PlayList::class.java)
             else randomPlayList()
-        song = playList.currentSong
+        song = playList.currentSong*/
+
+        val sharedPreference = getSharedPreferences(CODE.music, MODE_PRIVATE)
+        val songId = sharedPreference.getInt(songID,0)
+
+        val songDB = SongDatabase.getInstance(this)!!
+        song = if(songId == 0) songDB.songDao().getSong(1)
+            else songDB.songDao().getSong(songId)
 
         setMiniPlayer(song)
     }
@@ -150,13 +166,33 @@ class MainActivity : AppCompatActivity() {
             false
         }
     }
-    private fun startTimer(){
-        timer = Timer(song.playTime, song.isPlaying, song.second, song.mills)
-        timer?.start()
+    private fun initClickListener(){
+        binding.mainMiniplayerBtn.setOnClickListener { setPlayerStatus(true) }
+        binding.mainPauseBtn.setOnClickListener { setPlayerStatus(false) }
+        binding.songNextIv.setOnClickListener {
+            aniBigSmall(binding.songNextIv)
+            nextMusic()
+        }
+        binding.songPreviousIv.setOnClickListener {
+            aniBigSmall(binding.songPreviousIv)
+            prevMusic()
+        }
     }
-    private fun stopTimer() {
-        if(timer == null) return
-        timer?.interrupt()
+    private fun inputDummySongs(){
+        val songDB = SongDatabase.getInstance(this)!!
+        val songs = songDB.songDao().getSongs()
+
+        if(songs.isNotEmpty()) return
+        songDB.songDao().insert(Song("라일락", "아이유 (IU)", 0, 60, false, 0f, "music_lilac", isTitle = true))
+        songDB.songDao().insert(Song("Flu", "아이유 (IU)", 0, 60, false, 0f, "music_flu", isTitle = false))
+        songDB.songDao().insert(Song("Coin", "아이유 (IU)", 0, 60, false, 0f, "music_coin", isTitle = true))
+        songDB.songDao().insert(Song("봄 안녕 봄", "아이유 (IU)", 0, 60, false, 0f, "music_hispringbye", isTitle = false))
+
+        songDB.songDao().insert(Song("BBoom BBoom", "모모랜드 (MOMOLAND)", 0, 60, false, 0f, "music_bboom", isTitle = true, coverImg = R.drawable.img_album_exp5))
+        songDB.songDao().insert(Song("Boy", "I Don't Know", 0, 60, false, 0f, "music_boy", isTitle = false))
+        songDB.songDao().insert(Song("Butter", "BTS", 0, 60, false, 0f, "music_butter", isTitle = true, coverImg = R.drawable.img_album_exp))
+        val _songs = songDB.songDao().getSongs()
+        Log.d("DB data", _songs.toString())
     }
 
     private fun setMiniPlayer(playerSong: Song){
@@ -176,18 +212,6 @@ class MainActivity : AppCompatActivity() {
         binding.songProgressSb.progress = (playerSong.second * 100000 / playerSong.playTime)
 
         setPlayerStatus(playerSong.isPlaying)
-    }
-    private fun initClickListener(){
-        binding.mainMiniplayerBtn.setOnClickListener { setPlayerStatus(true) }
-        binding.mainPauseBtn.setOnClickListener { setPlayerStatus(false) }
-        binding.songNextIv.setOnClickListener {
-            aniBigSmall(binding.songNextIv)
-            nextMusic()
-        }
-        binding.songPreviousIv.setOnClickListener {
-            aniBigSmall(binding.songPreviousIv)
-            prevMusic()
-        }
     }
     private fun setPlayerStatus (isPlaying : Boolean){
         song.isPlaying = isPlaying
@@ -303,5 +327,14 @@ class MainActivity : AppCompatActivity() {
             } catch (e: Exception){ }
         }
         fun timerStop() { runningFlag = false }
+    }
+
+    private fun startTimer(){
+        timer = Timer(song.playTime, song.isPlaying, song.second, song.mills)
+        timer?.start()
+    }
+    private fun stopTimer() {
+        if(timer == null) return
+        timer?.interrupt()
     }
 }

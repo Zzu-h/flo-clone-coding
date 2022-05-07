@@ -5,7 +5,7 @@ import android.view.ViewGroup
 import androidx.core.view.isGone
 import androidx.recyclerview.widget.RecyclerView
 import com.example.flo.databinding.ItemAlbumSongBinding
-import com.example.flo.vo.Song
+import com.example.flo.data.vo.Song
 import java.util.ArrayList
 
 class TrackRVAdapter(private val trackList: ArrayList<Song>) : RecyclerView.Adapter<TrackRVAdapter.ViewHolder>(){

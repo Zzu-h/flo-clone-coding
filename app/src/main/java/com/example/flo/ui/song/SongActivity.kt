@@ -5,10 +5,12 @@ import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
+import com.example.flo.R
+import com.example.flo.data.model.SongDatabase
 import com.example.flo.ui.main.CODE
-import com.example.flo.vo.Song
+import com.example.flo.data.vo.Song
 import com.example.flo.databinding.ActivitySongBinding
-import com.example.flo.vo.PlayList
+import com.example.flo.data.vo.PlayList
 import com.google.gson.Gson
 import java.lang.Exception
 
@@ -80,6 +82,9 @@ class SongActivity : AppCompatActivity() {
         binding.songEndTimeTv.text = String.format("%02d:%02d", playerSong.playTime / 60, playerSong.playTime % 60)
         binding.songProgressSb.progress = (playerSong.second * 100000 / playerSong.playTime)
 
+        if(song.isLike) binding.songLikeIv.setImageResource(R.drawable.ic_my_like_on)
+        else binding.songLikeIv.setImageResource(R.drawable.ic_my_like_off)
+
         setPlayerStatus(playerSong.isPlaying)
     }
     private fun initClickListener(){
@@ -94,6 +99,13 @@ class SongActivity : AppCompatActivity() {
             aniBigSmall(binding.songPreviousIv)
             prevMusic()
         }
+        binding.songLikeIv.setOnClickListener { setLike(song.isLike) }
+    }
+    private fun setLike(isLike: Boolean){
+        song.isLike = !isLike
+
+        val songDB = SongDatabase.getInstance(this)!!
+        songDB.songDao().updateIsLikeById(song.id, song.isLike)
     }
 
     // 사용자가 포커스를 잃었을 때 음악 중지

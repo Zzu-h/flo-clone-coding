@@ -3,7 +3,7 @@ package com.example.flo.ui.main.home.adapter
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.example.flo.vo.Album
+import com.example.flo.data.vo.Album
 import com.example.flo.databinding.ItemAlbumBinding
 import java.util.ArrayList
 
