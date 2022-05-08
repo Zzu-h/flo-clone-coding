@@ -50,7 +50,6 @@ class CircleIndicator: LinearLayout {
         viewPager.registerOnPageChangeCallback(object: ViewPager2.OnPageChangeCallback(){
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
-                Log.d("pageSelected",position.toString())
                 selectDot(position)
             }
         })
@@ -71,7 +70,6 @@ class CircleIndicator: LinearLayout {
                 else unSelectDrawable
             })
             this.addView(item[i])
-            println("$i")
         }
         this.gravity = Gravity.CENTER
     }
@@ -84,7 +82,6 @@ class CircleIndicator: LinearLayout {
         val selectDrawable: Drawable? = ContextCompat.getDrawable(context, mSelectCircle)
         val unSelectDrawable: Drawable? = ContextCompat.getDrawable(context, mDefaultCircle)
 
-        println(selectDrawable.toString())
         for (i in item.indices)
             item[i].background = if (i == position) selectDrawable else unSelectDrawable
     }

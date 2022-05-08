@@ -1,7 +1,11 @@
 package com.example.flo.data.vo
 
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+
+@Entity(tableName = "PlayList")
 data class PlayList(
-    var playList: ArrayList<Song>,
-    var currentSong: Song,
-    var index: Int = 0
+    var songIdList: String,
+    var playListName: String,
+    @PrimaryKey(autoGenerate = true) val id : Int = 0,
 )

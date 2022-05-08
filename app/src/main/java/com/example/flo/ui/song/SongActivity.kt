@@ -7,9 +7,10 @@ import android.view.View
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import com.example.flo.R
+import com.example.flo.data.model.CODE
+import com.example.flo.data.model.Converter
 import com.example.flo.data.model.SongDatabase
 import com.example.flo.data.model.Timer
-import com.example.flo.ui.main.CODE
 import com.example.flo.data.vo.Song
 import com.example.flo.databinding.ActivitySongBinding
 import com.example.flo.data.vo.PlayList
@@ -20,27 +21,48 @@ class SongActivity : AppCompatActivity() {
     //전역 변수
     lateinit var binding : ActivitySongBinding
     lateinit var song: Song
-    lateinit var playList: PlayList
+    lateinit var playList: MutableList<Song>
+    private var playListSize = 0
+    private var playListPos = 0
+
     private var timer: Timer? = null
     private val aniDuration = 300L
 
-    private val gson = Gson()
     private var mediaPlayer: MediaPlayer? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivitySongBinding.inflate(layoutInflater)
+        playList = mutableListOf<Song>()
         setContentView(binding.root)
-        if(intent.hasExtra(CODE.play_list)) {
-            val playListJson = intent.getStringExtra(CODE.play_list)
-            playList = gson.fromJson(playListJson, PlayList::class.java)
-        }
-        else finish()
-        song = playList.currentSong
-        setPlayer(song)
+        initialize()
 
         initClickListener()
     }
+    private fun initialize(){
+        if(!intent.hasExtra(CODE.playingSongID)) {
+            finish()
+            return
+        }
+
+        val sharedPreference = getSharedPreferences(CODE.music, MODE_PRIVATE)
+        val songId = sharedPreference.getInt(CODE.playingSongID,0)
+
+        val songDB = SongDatabase.getInstance(this)!!
+        val dbPlayList = songDB.playListDao().getPlayList(CODE.currentPlayList)
+        val songIdList = Converter.stringToList(dbPlayList)
+
+        songIdList.forEach { playList.add(songDB.songDao().getSong(it)) }
+
+        if(songId != 0) playList.forEachIndexed { index, c -> if(songId == c.id) playListPos = index }
+        else playListPos = 0
+
+        playListSize = songIdList.size
+        song = playList[playListPos]
+
+        setPlayer(song)
+    }
+
     private fun startTimer(){
         timer = Timer(this, song, song.playTime, song.isPlaying, song.second, song.mills)
             .apply {
@@ -56,18 +78,16 @@ class SongActivity : AppCompatActivity() {
     }
     private fun updateProgressSb(time: Int) { binding.songProgressSb.progress = time }
     private fun prevMusic(){
-        val size = playList.playList.size
-        playList.index = ((playList.index - 1) + size).mod(size)
-        playList.currentSong = playList.playList[playList.index]
-        playList.currentSong.isPlaying = true
-        setPlayer(playList.currentSong)
+        playListPos = ((playListPos - 1) + playListSize).mod(playListSize)
+        song = playList[playListPos]
+
+        setPlayer(song)
     }
     private fun nextMusic(){
-        val size = playList.playList.size
-        playList.index = (playList.index + 1).mod(size)
-        playList.currentSong = playList.playList[playList.index]
-        playList.currentSong.isPlaying = true
-        setPlayer(playList.currentSong)
+        playListPos = (playListPos + 1).mod(playListSize)
+        song = playList[playListPos]
+
+        setPlayer(song)
     }
 
     private fun setPlayer(playerSong: Song){
@@ -85,6 +105,7 @@ class SongActivity : AppCompatActivity() {
 
         binding.songMusicTitleTv.text = playerSong.title
         binding.songSingerNameTv.text = playerSong.singer
+        binding.songAlbumIv.setImageResource(song.coverImg)
         binding.songStartTimeTv.text = String.format("%02d:%02d", playerSong.second / 60, playerSong.second % 60)
         binding.songEndTimeTv.text = String.format("%02d:%02d", playerSong.playTime / 60, playerSong.playTime % 60)
         binding.songProgressSb.progress = (playerSong.second * 100000 / playerSong.playTime)
@@ -130,7 +151,7 @@ class SongActivity : AppCompatActivity() {
         val sharedPreference = getSharedPreferences(CODE.music, MODE_PRIVATE)
         val edit = sharedPreference.edit()
 
-        edit.putString(CODE.play_list, gson.toJson(playList))
+        edit.putInt(CODE.playingSongID, song.id)
         edit.apply()
     }
     override fun onDestroy() {
@@ -207,5 +228,4 @@ class SongActivity : AppCompatActivity() {
             }.start()
         }
     }
-
 }

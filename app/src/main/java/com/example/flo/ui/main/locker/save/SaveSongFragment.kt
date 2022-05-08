@@ -16,23 +16,25 @@ import com.example.flo.data.vo.Song
 import com.example.flo.databinding.FragmentSaveSongBinding
 import com.example.flo.ui.main.MainActivity
 
-
 class SaveSongFragment : Fragment() {
     lateinit var binding: FragmentSaveSongBinding
 
     private var songList = ArrayList<Song>()
-    val adapter = SongRVAdapter(songList)
+    lateinit var adapter: SongRVAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentSaveSongBinding.inflate(inflater, container, false)
-
+        adapter = SongRVAdapter(songList).apply { onItemClick = this@SaveSongFragment::updateIsLike }
         binding.saveSongRv.adapter = adapter
         loadLikeSongs()
         return binding.root
     }
+
+    private fun updateIsLike(song: Song)
+        = SongDatabase.getInstance(this.requireContext())!!.songDao().updateIsLikeById(song.id, false)
 
     private fun loadLikeSongs(){
         val songDB = SongDatabase.getInstance(this.requireContext())!!

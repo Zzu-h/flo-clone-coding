@@ -8,6 +8,10 @@ import android.util.Log
 import android.view.View
 import android.widget.ImageView
 import com.example.flo.R
+import com.example.flo.data.model.CODE
+import com.example.flo.data.model.CODE.currentPlayList
+import com.example.flo.data.model.CODE.playingSongID
+import com.example.flo.data.model.Converter
 import com.example.flo.data.model.SongDatabase
 import com.example.flo.data.model.Timer
 import com.example.flo.data.vo.Song
@@ -19,39 +23,30 @@ import com.example.flo.ui.main.search.SearchFragment
 import com.example.flo.ui.song.SongActivity
 import com.example.flo.data.vo.Album
 import com.example.flo.data.vo.PlayList
-import com.example.flo.ui.main.CODE.songID
 import com.google.gson.Gson
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import java.lang.Exception
-
-object CODE {
-    const val music = "Song"
-    const val play_list = "PlayList"
-    const val album = "album"
-    const val songID = "songId"
-}
 
 class MainActivity : AppCompatActivity() {
 
     lateinit var binding: ActivityMainBinding
 
     lateinit var song: Song
-    lateinit var playList: PlayList
+    lateinit var playList: MutableList<Song>
+    private var playListSize = 0
+    private var playListPos = 0
 
     private var timer: Timer? = null
     private val aniDuration = 300L
 
-    private val gson = Gson()
     private var mediaPlayer: MediaPlayer? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.Theme_FLO)
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
+        playList = mutableListOf<Song>()
+
         setContentView(binding.root)
-        //inputDummySongs()
+        inputDummies()
 
         initClickListener()
 
@@ -61,55 +56,42 @@ class MainActivity : AppCompatActivity() {
         binding.mainPlayerCl.setOnClickListener {
             val intent = Intent(this, SongActivity::class.java)
             val editor = getSharedPreferences(CODE.music, MODE_PRIVATE).edit()
-            editor.putInt(CODE.songID, song.id)
+            editor.putInt(CODE.playingSongID, song.id)
             editor.apply()
 
-            val sendPlayList = gson.toJson(playList)
-            intent.putExtra(CODE.play_list, sendPlayList)
+            intent.putExtra(CODE.playingSongID, song.id)
 
             startActivity(intent)
         }
     }
     override fun onStart() {
         super.onStart()
+
         val sharedPreference = getSharedPreferences(CODE.music, MODE_PRIVATE)
-        val songJson = sharedPreference.getString(CODE.play_list, null)
-
-        playList = if(songJson != null) gson.fromJson(songJson, PlayList::class.java)
-            else randomPlayList()
-        song = playList.currentSong
-
-        /*val sharedPreference = getSharedPreferences(CODE.music, MODE_PRIVATE)
-        val songId = sharedPreference.getInt(songID,0)
+        val songId = sharedPreference.getInt(playingSongID,0)
 
         val songDB = SongDatabase.getInstance(this)!!
-        song = if(songId == 0) songDB.songDao().getSong(1)
-        else songDB.songDao().getSong(songId)*/
+        val dbPlayList = songDB.playListDao().getPlayList(currentPlayList)
+        val songIdList = Converter.stringToList(dbPlayList)
+
+        songIdList.forEach { playList.add(songDB.songDao().getSong(it)) }
+
+        if(songId != 0) playList.forEachIndexed { index, c -> if(songId == c.id) playListPos = index }
+        else playListPos = 0
+
+        playListSize = songIdList.size
+        song = playList[playListPos]
 
         setMiniPlayer(song)
     }
-    private fun randomPlayList(): PlayList {
-        song = Song(
-            binding.mainMiniplayerTitleTv.text.toString(),
-            binding.mainMiniplayerSingerTv.text.toString(),
-            0,
-            60,
-            false,
-            0f,
-            "music_lilac"
-        )
-        return PlayList(
-            ArrayList<Song>(5).apply { add(song) },
-            song,
-        )
-    }
+
     override fun onPause() {
         super.onPause()
         setPlayerStatus(false)
         val sharedPreference = getSharedPreferences(CODE.music, MODE_PRIVATE)
         val edit = sharedPreference.edit()
 
-        edit.putString(CODE.play_list, gson.toJson(playList))
+        edit.putInt(CODE.playingSongID, song.id)
         edit.apply()
     }
     override fun onDestroy() {
@@ -119,14 +101,22 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun playAlbum(album: Album){
-        album.songs?.apply {
-            println(album.songs)
-            playList.playList = album.songs!!
-            playList.index = 0
-            playList.currentSong = playList.playList[0]
-            playList.currentSong.isPlaying = true
-            setMiniPlayer(playList.currentSong)
-        }
+        val idList = Converter.stringToList(album.songIdList)
+        this.playList = mutableListOf()
+
+        playListPos = 0
+        playListSize = idList.size
+
+        val songDB = SongDatabase.getInstance(this)!!
+        songDB.playListDao().deletePlayList(currentPlayList)
+        songDB.playListDao().insert(PlayList(Converter.listToString(idList), currentPlayList))
+
+        idList.forEach { playList.add(songDB.songDao().getSong(it)) }
+
+        song = playList[playListPos]
+        song.isPlaying = true
+
+        setMiniPlayer(song)
     }
 
     private fun initBottomNavigation(){
@@ -179,22 +169,48 @@ class MainActivity : AppCompatActivity() {
             prevMusic()
         }
     }
-    private fun inputDummySongs(){
+
+    private fun inputDummies(){
         val songDB = SongDatabase.getInstance(this)!!
         val songs = songDB.songDao().getSongs()
+        val albums = songDB.albumDao().getAlbums()
+        val dbPlayList = songDB.playListDao().getPlayList(CODE.currentPlayList)
 
-        if(songs.isNotEmpty()) return
-        songDB.songDao().insert(Song("라일락", "아이유 (IU)", 0, 60, false, 0f, "music_lilac", isTitle = true))
-        songDB.songDao().insert(Song("Flu", "아이유 (IU)", 0, 60, false, 0f, "music_flu", isTitle = false))
-        songDB.songDao().insert(Song("Coin", "아이유 (IU)", 0, 60, false, 0f, "music_coin", isTitle = true))
-        songDB.songDao().insert(Song("봄 안녕 봄", "아이유 (IU)", 0, 60, false, 0f, "music_hispringbye", isTitle = false))
+        if(songs.isEmpty()){
+            songDB.songDao().insert(Song("라일락", "아이유 (IU)", 0, 60, false, 0f, "music_lilac", isTitle = true))
+            songDB.songDao().insert(Song("Flu", "아이유 (IU)", 0, 60, false, 0f, "music_flu", isTitle = false))
+            songDB.songDao().insert(Song("Coin", "아이유 (IU)", 0, 60, false, 0f, "music_coin", isTitle = true))
+            songDB.songDao().insert(Song("봄 안녕 봄", "아이유 (IU)", 0, 60, false, 0f, "music_hispringbye", isTitle = false))
 
-        songDB.songDao().insert(Song("BBoom BBoom", "모모랜드 (MOMOLAND)", 0, 60, false, 0f, "music_bboom", isTitle = true, coverImg = R.drawable.img_album_exp5))
-        songDB.songDao().insert(Song("Boy", "I Don't Know", 0, 60, false, 0f, "music_boy", isTitle = false))
-        songDB.songDao().insert(Song("Butter", "BTS", 0, 60, false, 0f, "music_butter", isTitle = true, coverImg = R.drawable.img_album_exp))
+            songDB.songDao().insert(Song("BBoom BBoom", "모모랜드 (MOMOLAND)", 0, 60, false, 0f, "music_bboom", isTitle = true, coverImg = R.drawable.img_album_exp5))
+            songDB.songDao().insert(Song("작은 것들을 위한 시", "BTS", 0, 60, false, 0f, "music_boy", isTitle = true, coverImg = R.drawable.img_album_exp4))
+            songDB.songDao().insert(Song("Butter", "BTS", 0, 60, false, 0f, "music_butter", isTitle = true, coverImg = R.drawable.img_album_exp))
+        }
+        if(albums.isEmpty()){
+            val allSongs = songDB.songDao().getSongs()
+            val IUlist = mutableListOf<Song>()
+            val BTSlist = mutableListOf<Song>()
 
-        val _songs = songDB.songDao().getSongs()
-        Log.d("DB data", _songs.toString())
+            allSongs.forEach {
+                val song = it
+                if(it.singer.contains("아이유")) IUlist.add(it)
+                else if(it.singer.contains("BTS")) BTSlist.add(it)
+                else songDB.albumDao().insert(Album(songIdList = Converter.listToString(List(1) { song.id }), title = "BBoom BBoom", singer = "모모랜드 (MOMOLAND)", coverImg = R.drawable.img_album_exp5))
+            }
+            songDB.albumDao().insert(Album(songIdList = Converter.listToString(List(IUlist.size) { i -> IUlist[i].id }), title = "Lilac", singer = "아이유 (IU)"))
+            BTSlist.forEach {
+                val song = it
+                if(it.title.contains("Butter")) songDB.albumDao().insert(Album(songIdList = Converter.listToString(List(1) { song.id }), title = "Butter", singer = "BTS", coverImg = R.drawable.img_album_exp))
+                else songDB.albumDao().insert(Album(songIdList = Converter.listToString(List(1) { song.id }), title = "MAP OF THE SOUL : PERSONA", singer = "BTS", coverImg = R.drawable.img_album_exp4))
+            }
+
+        }
+        if(dbPlayList == null || dbPlayList.isEmpty()){
+            val allSongs = songDB.songDao().getSongs()
+            val list = List(allSongs.size){ index -> allSongs[index].id }
+
+            songDB.playListDao().insert(PlayList(Converter.listToString(list),CODE.currentPlayList))
+        }
     }
 
     private fun setMiniPlayer(playerSong: Song){
@@ -285,18 +301,16 @@ class MainActivity : AppCompatActivity() {
         }
     }
     private fun prevMusic(){
-        val size = playList.playList.size
-        playList.index = ((playList.index - 1) + size).mod(size)
-        playList.currentSong = playList.playList[playList.index]
-        playList.currentSong.isPlaying = true
-        setMiniPlayer(playList.currentSong)
+        playListPos = ((playListPos - 1) + playListSize).mod(playListSize)
+        song = playList[playListPos]
+
+        setMiniPlayer(song)
     }
     private fun nextMusic(){
-        val size = playList.playList.size
-        playList.index = (playList.index + 1).mod(size)
-        playList.currentSong = playList.playList[playList.index]
-        playList.currentSong.isPlaying = true
-        setMiniPlayer(playList.currentSong)
+        playListPos = (playListPos + 1).mod(playListSize)
+        song = playList[playListPos]
+
+        setMiniPlayer(song)
     }
 
     private fun startTimer(){

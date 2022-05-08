@@ -23,7 +23,10 @@ class SongRVAdapter(private val albumList: ArrayList<Song>) : RecyclerView.Adapt
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.bind(albumList[position])
-        holder.binding.itemSongMoreIv.setOnClickListener { removeItem(position) }
+        holder.binding.itemSongMoreIv.setOnClickListener {
+            onItemClick(albumList[position])
+            removeItem(position)
+        }
     }
 
     override fun getItemCount(): Int = albumList.size
