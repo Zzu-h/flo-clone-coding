@@ -8,12 +8,12 @@ import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import com.example.flo.R
 import com.example.flo.data.model.SongDatabase
+import com.example.flo.data.model.Timer
 import com.example.flo.ui.main.CODE
 import com.example.flo.data.vo.Song
 import com.example.flo.databinding.ActivitySongBinding
 import com.example.flo.data.vo.PlayList
 import com.google.gson.Gson
-import java.lang.Exception
 
 class SongActivity : AppCompatActivity() {
 
@@ -42,13 +42,19 @@ class SongActivity : AppCompatActivity() {
         initClickListener()
     }
     private fun startTimer(){
-        timer = Timer(song.playTime, song.isPlaying, song.second, song.mills)
+        timer = Timer(this, song, song.playTime, song.isPlaying, song.second, song.mills)
+            .apply {
+                nextMusic = this@SongActivity::nextMusic
+                setPlayerStatus = this@SongActivity::setPlayerStatus
+                updateProgressSb = this@SongActivity::updateProgressSb
+            }
         timer?.start()
     }
     private fun stopTimer() {
         if(timer == null) return
         timer?.interrupt()
     }
+    private fun updateProgressSb(time: Int) { binding.songProgressSb.progress = time }
     private fun prevMusic(){
         val size = playList.playList.size
         playList.index = ((playList.index - 1) + size).mod(size)
@@ -202,37 +208,4 @@ class SongActivity : AppCompatActivity() {
         }
     }
 
-    inner class Timer(private val playTime: Int, var isPlaying: Boolean = true, private var second: Int = 0, private var mills: Float = 0f): Thread(){
-
-        private var runningFlag = true
-
-        override fun run() {
-            super.run()
-            try {
-                runningFlag = true
-                while (runningFlag){
-                    if(second >= playTime) {
-                        song.mills = 0f
-                        song.second = 0
-                        this@SongActivity.nextMusic()
-                        this@SongActivity.setPlayerStatus(false)
-                        break
-                    }
-                    if(isPlaying){
-                        sleep(50)
-                        mills += 50
-                        song.mills = mills
-                        runOnUiThread { binding.songProgressSb.progress = ((mills / playTime)*100).toInt() }
-                        if(mills % 1000 == 0f)
-                            runOnUiThread { binding.songStartTimeTv.text = String.format("%02d:%02d", second / 60, second % 60)}
-                                .apply {
-                                    second++
-                                    song.second = second
-                                }
-                    }
-                }
-            } catch (e: Exception){ }
-        }
-        fun timerStop() { runningFlag = false }
-    }
 }

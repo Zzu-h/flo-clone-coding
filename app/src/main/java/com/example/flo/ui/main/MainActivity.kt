@@ -9,6 +9,7 @@ import android.view.View
 import android.widget.ImageView
 import com.example.flo.R
 import com.example.flo.data.model.SongDatabase
+import com.example.flo.data.model.Timer
 import com.example.flo.data.vo.Song
 import com.example.flo.databinding.ActivityMainBinding
 import com.example.flo.ui.main.home.HomeFragment
@@ -50,7 +51,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        inputDummySongs()
+        //inputDummySongs()
 
         initClickListener()
 
@@ -298,44 +299,18 @@ class MainActivity : AppCompatActivity() {
         setMiniPlayer(playList.currentSong)
     }
 
-    inner class Timer(private val playTime: Int, var isPlaying: Boolean = true, private var second: Int = 0, private var mills: Float = 0f): Thread(){
-
-        private var runningFlag = true
-
-        override fun run() {
-            super.run()
-            try {
-                runningFlag = true
-                while (runningFlag){
-                    if(second >= playTime) {
-                        song.mills = 0f
-                        song.second = 0
-                        this@MainActivity.nextMusic()
-                        this@MainActivity.setPlayerStatus(false)
-                        break
-                    }
-                    if(isPlaying){
-                        sleep(50)
-                        mills += 50
-                        song.mills = mills
-                        runOnUiThread { binding.songProgressSb.progress = ((mills / playTime)*100).toInt() }
-                        if(mills % 1000 == 0f){
-                            second++
-                            song.second = second
-                        }
-                    }
-                }
-            } catch (e: Exception){ }
-        }
-        fun timerStop() { runningFlag = false }
-    }
-
     private fun startTimer(){
-        timer = Timer(song.playTime, song.isPlaying, song.second, song.mills)
+        timer = Timer(this, song, song.playTime, song.isPlaying, song.second, song.mills)
+            .apply {
+                nextMusic = this@MainActivity::nextMusic
+                setPlayerStatus = this@MainActivity::setPlayerStatus
+                updateProgressSb = this@MainActivity::updateProgressSb
+            }
         timer?.start()
     }
     private fun stopTimer() {
         if(timer == null) return
         timer?.interrupt()
     }
+    private fun updateProgressSb(time: Int) { binding.songProgressSb.progress = time }
 }
