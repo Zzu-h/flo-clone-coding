@@ -23,6 +23,7 @@ import com.example.flo.ui.main.search.SearchFragment
 import com.example.flo.ui.song.SongActivity
 import com.example.flo.data.vo.Album
 import com.example.flo.data.vo.PlayList
+import com.example.flo.ui.animation.PlayerButtonAnimation
 import com.google.gson.Gson
 
 class MainActivity : AppCompatActivity() {
@@ -35,7 +36,6 @@ class MainActivity : AppCompatActivity() {
     private var playListPos = 0
 
     private var timer: Timer? = null
-    private val aniDuration = 300L
 
     private var mediaPlayer: MediaPlayer? = null
 
@@ -161,11 +161,11 @@ class MainActivity : AppCompatActivity() {
         binding.mainMiniplayerBtn.setOnClickListener { setPlayerStatus(true) }
         binding.mainPauseBtn.setOnClickListener { setPlayerStatus(false) }
         binding.songNextIv.setOnClickListener {
-            aniBigSmall(binding.songNextIv)
+            PlayerButtonAnimation.bigAndSmall(binding.songNextIv)
             nextMusic()
         }
         binding.songPreviousIv.setOnClickListener {
-            aniBigSmall(binding.songPreviousIv)
+            PlayerButtonAnimation.bigAndSmall(binding.songPreviousIv)
             prevMusic()
         }
     }
@@ -236,70 +236,19 @@ class MainActivity : AppCompatActivity() {
 
         if(isPlaying){
             startTimer()
-
-            binding.mainPauseBtn.animate().apply {
-                rotationY(-90f)
-            }.start()
-            binding.mainMiniplayerBtn.animate().apply {
-                duration = aniDuration
-                rotationYBy(90f)
-            }.withEndAction {
-                binding.mainMiniplayerBtn.visibility = View.GONE
-                binding.mainPauseBtn.visibility = View.VISIBLE
-                binding.mainPauseBtn.animate().apply {
-                    duration = aniDuration
-                    rotationYBy(90f)
-                }.start()
-            }
-            binding.mainMiniplayerBtn.animate().apply {
-                rotationYBy(-90f)
-            }.start()
-
+            PlayerButtonAnimation.pauseToPlay(binding.mainPauseBtn, binding.mainMiniplayerBtn)
             mediaPlayer?.apply {
                 this.seekTo(song.mills.toInt())
                 start()
             }
         } else {
             stopTimer()
-
-            binding.mainMiniplayerBtn.animate().apply {
-                rotationY(-90f)
-            }.start()
-            binding.mainPauseBtn.animate().apply {
-                duration = aniDuration
-                rotationYBy(90f)
-            }.withEndAction {
-                binding.mainMiniplayerBtn.visibility = View.VISIBLE
-                binding.mainPauseBtn.visibility = View.GONE
-                binding.mainMiniplayerBtn.animate().apply {
-                    duration = aniDuration
-                    rotationYBy(90f)
-                }.start()
-            }
-            binding.mainPauseBtn.animate().apply {
-                rotationYBy(-90f)
-            }.start()
-
+            PlayerButtonAnimation.pauseToPlay(binding.mainMiniplayerBtn, binding.mainPauseBtn)
             if(mediaPlayer?.isPlaying == true)
                 mediaPlayer?.pause()
         }
     }
-    private fun aniBigSmall(view: ImageView){
-        val xSize = view.scaleX
-        val ySize = view.scaleY
 
-        view.animate().apply {
-            duration = aniDuration
-            this.scaleX(1.2f)
-            this.scaleY(1.2f)
-        }.withEndAction {
-            view.animate().apply{
-                duration = aniDuration
-                this.scaleX(xSize)
-                this.scaleY(ySize)
-            }.start()
-        }
-    }
     private fun prevMusic(){
         playListPos = ((playListPos - 1) + playListSize).mod(playListSize)
         song = playList[playListPos]
@@ -326,5 +275,6 @@ class MainActivity : AppCompatActivity() {
         if(timer == null) return
         timer?.interrupt()
     }
+
     private fun updateProgressSb(time: Int) { binding.songProgressSb.progress = time }
 }

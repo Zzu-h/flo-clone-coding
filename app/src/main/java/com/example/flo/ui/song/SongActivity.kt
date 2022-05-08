@@ -14,6 +14,7 @@ import com.example.flo.data.model.Timer
 import com.example.flo.data.vo.Song
 import com.example.flo.databinding.ActivitySongBinding
 import com.example.flo.data.vo.PlayList
+import com.example.flo.ui.animation.PlayerButtonAnimation
 import com.google.gson.Gson
 
 class SongActivity : AppCompatActivity() {
@@ -26,7 +27,6 @@ class SongActivity : AppCompatActivity() {
     private var playListPos = 0
 
     private var timer: Timer? = null
-    private val aniDuration = 300L
 
     private var mediaPlayer: MediaPlayer? = null
 
@@ -120,11 +120,11 @@ class SongActivity : AppCompatActivity() {
         binding.songMiniplayerIv.setOnClickListener { setPlayerStatus(true) }
         binding.songPauseIv.setOnClickListener { setPlayerStatus(false) }
         binding.songNextIv.setOnClickListener {
-            aniBigSmall(binding.songNextIv)
+            PlayerButtonAnimation.bigAndSmall(binding.songNextIv)
             nextMusic()
         }
         binding.songPreviousIv.setOnClickListener {
-            aniBigSmall(binding.songPreviousIv)
+            PlayerButtonAnimation.bigAndSmall(binding.songPreviousIv)
             prevMusic()
         }
         binding.songLikeIv.setOnClickListener {
@@ -162,70 +162,19 @@ class SongActivity : AppCompatActivity() {
 
     private fun setPlayerStatus (isPlaying : Boolean){
         song.isPlaying = isPlaying
-        //timer.isPlaying = isPlaying
 
         if(isPlaying){
             startTimer()
-
-            binding.songPauseIv.animate().apply {
-                rotationY(-90f)
-            }.start()
-            binding.songMiniplayerIv.animate().apply {
-                duration = aniDuration
-                rotationYBy(90f)
-            }.withEndAction {
-                binding.songMiniplayerIv.visibility = View.GONE
-                binding.songPauseIv.visibility = View.VISIBLE
-                binding.songPauseIv.animate().apply {
-                    duration = aniDuration
-                    rotationYBy(90f)
-                }.start()
-            }
-            binding.songMiniplayerIv.animate().apply {
-                rotationYBy(-90f)
-            }.start()
+            PlayerButtonAnimation.pauseToPlay(binding.songPauseIv, binding.songMiniplayerIv)
             mediaPlayer?.apply {
                 this.seekTo(song.mills.toInt())
                 start()
             }
         } else {
             stopTimer()
-
-            binding.songMiniplayerIv.animate().apply {
-                rotationY(-90f)
-            }.start()
-            binding.songPauseIv.animate().apply {
-                duration = aniDuration
-                rotationYBy(90f)
-            }.withEndAction {
-                binding.songMiniplayerIv.visibility = View.VISIBLE
-                binding.songPauseIv.visibility = View.GONE
-                binding.songMiniplayerIv.animate().apply {
-                    duration = aniDuration
-                    rotationYBy(90f)
-                }.start()
-            }
-            binding.songPauseIv.animate().apply {
-                rotationYBy(-90f)
-            }.start()
+            PlayerButtonAnimation.playToPause(binding.songMiniplayerIv, binding.songPauseIv)
             if(mediaPlayer?.isPlaying == true)
                 mediaPlayer?.pause()
-        }
-    }
-    private fun aniBigSmall(view: ImageView){
-        val xSize = view.scaleX
-        val ySize = view.scaleY
-
-        view.animate().apply {
-            duration = aniDuration
-            this.scaleX(1.2f)
-            this.scaleY(1.2f)
-        }.withEndAction {
-            view.animate().apply{
-                duration = aniDuration
-                this.scaleX(xSize)
-                this.scaleY(ySize)
-            }.start()
         }
     }
 }
