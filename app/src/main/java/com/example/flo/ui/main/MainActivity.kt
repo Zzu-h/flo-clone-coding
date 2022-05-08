@@ -71,19 +71,19 @@ class MainActivity : AppCompatActivity() {
     }
     override fun onStart() {
         super.onStart()
-        /*val sharedPreference = getSharedPreferences(CODE.music, MODE_PRIVATE)
+        val sharedPreference = getSharedPreferences(CODE.music, MODE_PRIVATE)
         val songJson = sharedPreference.getString(CODE.play_list, null)
 
         playList = if(songJson != null) gson.fromJson(songJson, PlayList::class.java)
             else randomPlayList()
-        song = playList.currentSong*/
+        song = playList.currentSong
 
-        val sharedPreference = getSharedPreferences(CODE.music, MODE_PRIVATE)
+        /*val sharedPreference = getSharedPreferences(CODE.music, MODE_PRIVATE)
         val songId = sharedPreference.getInt(songID,0)
 
         val songDB = SongDatabase.getInstance(this)!!
         song = if(songId == 0) songDB.songDao().getSong(1)
-            else songDB.songDao().getSong(songId)
+        else songDB.songDao().getSong(songId)*/
 
         setMiniPlayer(song)
     }
@@ -191,6 +191,7 @@ class MainActivity : AppCompatActivity() {
         songDB.songDao().insert(Song("BBoom BBoom", "모모랜드 (MOMOLAND)", 0, 60, false, 0f, "music_bboom", isTitle = true, coverImg = R.drawable.img_album_exp5))
         songDB.songDao().insert(Song("Boy", "I Don't Know", 0, 60, false, 0f, "music_boy", isTitle = false))
         songDB.songDao().insert(Song("Butter", "BTS", 0, 60, false, 0f, "music_butter", isTitle = true, coverImg = R.drawable.img_album_exp))
+
         val _songs = songDB.songDao().getSongs()
         Log.d("DB data", _songs.toString())
     }

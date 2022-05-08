@@ -10,6 +10,7 @@ import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import com.example.flo.R
+import com.example.flo.data.model.SongDatabase
 import com.example.flo.ui.main.locker.save.adapter.SongRVAdapter
 import com.example.flo.data.vo.Song
 import com.example.flo.databinding.FragmentSaveSongBinding
@@ -18,14 +19,41 @@ import com.example.flo.ui.main.MainActivity
 
 class SaveSongFragment : Fragment() {
     lateinit var binding: FragmentSaveSongBinding
-    val expList = arrayOf(
+
+    private var songList = ArrayList<Song>()
+    val adapter = SongRVAdapter(songList)
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        binding = FragmentSaveSongBinding.inflate(inflater, container, false)
+
+        binding.saveSongRv.adapter = adapter
+        loadLikeSongs()
+        return binding.root
+    }
+
+    private fun loadLikeSongs(){
+        val songDB = SongDatabase.getInstance(this.requireContext())!!
+        songList = songDB.songDao().getLikedSong(true) as ArrayList<Song>
+        songList.forEach{ adapter.addItem(it) }
+
+        if(songList.isNotEmpty()) {
+            adapter.notifyDataSetChanged()
+            binding.noSongTv.isGone = true
+            binding.saveSongRv.isVisible = true
+        }
+    }
+
+    private val expList = arrayOf(
         R.drawable.img_album_exp,
         R.drawable.img_album_exp2,
         R.drawable.img_album_exp3,
         R.drawable.img_album_exp4,
         R.drawable.img_album_exp5,
     )
-    val projection = arrayOf(
+    private val projection = arrayOf(
         MediaStore.Audio.Media._ID,
         MediaStore.Audio.Media._ID,
         MediaStore.Audio.Media.ALBUM_ID,
@@ -34,13 +62,7 @@ class SaveSongFragment : Fragment() {
         MediaStore.Audio.Media.ARTIST,
         MediaStore.Audio.Media.DATA
     )
-    var songList = ArrayList<Song>()
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        binding = FragmentSaveSongBinding.inflate(inflater, container, false)
-
+    private fun loadLocalSongs(){
         val cursor: Cursor? = (context as MainActivity).contentResolver.query(
             MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
             projection, null, null, null
@@ -53,18 +75,15 @@ class SaveSongFragment : Fragment() {
                     coverImg = expList.random()
                 )
                 println(musicDto)
-                /*cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA)),
-                cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID)),
-                cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID)),
-                cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM)),*/
+                cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA))
+                cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID))
+                cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID))
+                cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM))
                 songList.add(musicDto)
             }
             binding.noSongTv.isGone = true
             cursor.close()
             binding.saveSongRv.isVisible = true
         }
-        binding.saveSongRv.adapter = SongRVAdapter(songList)
-
-        return binding.root
     }
 }

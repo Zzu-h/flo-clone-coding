@@ -2,6 +2,7 @@ package com.example.flo.ui.song
 
 import android.media.MediaPlayer
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
@@ -99,13 +100,21 @@ class SongActivity : AppCompatActivity() {
             aniBigSmall(binding.songPreviousIv)
             prevMusic()
         }
-        binding.songLikeIv.setOnClickListener { setLike(song.isLike) }
+        binding.songLikeIv.setOnClickListener {
+            setLike(song.isLike)
+            binding.songLikeIv.setImageResource(
+                if(song.isLike) R.drawable.ic_my_like_on
+                else R.drawable.ic_my_like_off
+            )
+        }
     }
     private fun setLike(isLike: Boolean){
         song.isLike = !isLike
 
         val songDB = SongDatabase.getInstance(this)!!
         songDB.songDao().updateIsLikeById(song.id, song.isLike)
+
+        Log.d("Tester", songDB.songDao().getSongs().toString())
     }
 
     // 사용자가 포커스를 잃었을 때 음악 중지
