@@ -7,15 +7,15 @@ import androidx.room.RoomDatabase
 import com.example.flo.data.dao.AlbumDao
 import com.example.flo.data.dao.PlayListDao
 import com.example.flo.data.dao.SongDao
-import com.example.flo.data.vo.Album
-import com.example.flo.data.vo.PlayList
-import com.example.flo.data.vo.Song
+import com.example.flo.data.dao.UserDao
+import com.example.flo.data.vo.*
 
-@Database(entities = [Song::class, Album::class, PlayList::class], version = 1)
+@Database(entities = [Song::class, Album::class, PlayList::class, User::class, Like::class], version = 1)
 abstract class SongDatabase: RoomDatabase() {
     abstract fun songDao(): SongDao
     abstract fun albumDao(): AlbumDao
     abstract fun playListDao(): PlayListDao
+    abstract fun userDao(): UserDao
 
     companion object{
         private var instance: SongDatabase? = null

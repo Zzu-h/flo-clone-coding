@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.widget.ViewPager2
 import com.example.flo.R
-import com.example.flo.data.model.CODE
+import com.example.flo.data.model.SongCode
 import com.example.flo.data.model.SongDatabase
 import com.example.flo.ui.main.home.adapter.AlbumRVAdapter
 import com.example.flo.ui.main.home.adapter.BannerVPAdapter
@@ -98,7 +98,7 @@ class HomeFragment : Fragment() {
                     arguments = Bundle().apply {
                         val gson = Gson()
                         val albumJson = gson.toJson(album)
-                        putString(CODE.album, albumJson)
+                        putString(SongCode.album, albumJson)
                     }
                 }
             )

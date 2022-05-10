@@ -3,19 +3,15 @@ package com.example.flo.ui.song
 import android.media.MediaPlayer
 import android.os.Bundle
 import android.util.Log
-import android.view.View
-import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import com.example.flo.R
-import com.example.flo.data.model.CODE
+import com.example.flo.data.model.SongCode
 import com.example.flo.data.model.Converter
 import com.example.flo.data.model.SongDatabase
 import com.example.flo.data.model.Timer
 import com.example.flo.data.vo.Song
 import com.example.flo.databinding.ActivitySongBinding
-import com.example.flo.data.vo.PlayList
 import com.example.flo.ui.animation.PlayerButtonAnimation
-import com.google.gson.Gson
 
 class SongActivity : AppCompatActivity() {
 
@@ -40,16 +36,16 @@ class SongActivity : AppCompatActivity() {
         initClickListener()
     }
     private fun initialize(){
-        if(!intent.hasExtra(CODE.playingSongID)) {
+        if(!intent.hasExtra(SongCode.playingSongID)) {
             finish()
             return
         }
 
-        val sharedPreference = getSharedPreferences(CODE.music, MODE_PRIVATE)
-        val songId = sharedPreference.getInt(CODE.playingSongID,0)
+        val sharedPreference = getSharedPreferences(SongCode.music, MODE_PRIVATE)
+        val songId = sharedPreference.getInt(SongCode.playingSongID,0)
 
         val songDB = SongDatabase.getInstance(this)!!
-        val dbPlayList = songDB.playListDao().getPlayList(CODE.currentPlayList)
+        val dbPlayList = songDB.playListDao().getPlayList(SongCode.currentPlayList)
         val songIdList = Converter.stringToList(dbPlayList)
 
         songIdList.forEach { playList.add(songDB.songDao().getSong(it)) }
@@ -148,10 +144,10 @@ class SongActivity : AppCompatActivity() {
     override fun onPause() {
         super.onPause()
         //setPlayerStatus(false)
-        val sharedPreference = getSharedPreferences(CODE.music, MODE_PRIVATE)
+        val sharedPreference = getSharedPreferences(SongCode.music, MODE_PRIVATE)
         val edit = sharedPreference.edit()
 
-        edit.putInt(CODE.playingSongID, song.id)
+        edit.putInt(SongCode.playingSongID, song.id)
         edit.apply()
     }
     override fun onDestroy() {

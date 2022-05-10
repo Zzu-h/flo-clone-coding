@@ -1,12 +1,11 @@
 package com.example.flo.ui.album.song
 
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.example.flo.data.model.CODE
+import com.example.flo.data.model.SongCode
 import com.example.flo.data.model.Converter
 import com.example.flo.data.model.SongDatabase
 import com.example.flo.ui.album.song.adapter.TrackRVAdapter
@@ -27,7 +26,7 @@ class SongFragment : Fragment() {
         binding = FragmentSongBinding.inflate(inflater, container, false)
 
         val gson = Gson()
-        val album = gson.fromJson(arguments?.getString(CODE.album), Album::class.java)
+        val album = gson.fromJson(arguments?.getString(SongCode.album), Album::class.java)
         album?.apply {
             val songDB = SongDatabase.getInstance(this@SongFragment.requireContext())!!
             val trackIdList = Converter.stringToList(album.songIdList)

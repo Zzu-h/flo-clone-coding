@@ -4,13 +4,10 @@ import android.content.Intent
 import android.media.MediaPlayer
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
-import android.view.View
-import android.widget.ImageView
 import com.example.flo.R
-import com.example.flo.data.model.CODE
-import com.example.flo.data.model.CODE.currentPlayList
-import com.example.flo.data.model.CODE.playingSongID
+import com.example.flo.data.model.SongCode
+import com.example.flo.data.model.SongCode.currentPlayList
+import com.example.flo.data.model.SongCode.playingSongID
 import com.example.flo.data.model.Converter
 import com.example.flo.data.model.SongDatabase
 import com.example.flo.data.model.Timer
@@ -24,7 +21,6 @@ import com.example.flo.ui.song.SongActivity
 import com.example.flo.data.vo.Album
 import com.example.flo.data.vo.PlayList
 import com.example.flo.ui.animation.PlayerButtonAnimation
-import com.google.gson.Gson
 
 class MainActivity : AppCompatActivity() {
 
@@ -55,11 +51,11 @@ class MainActivity : AppCompatActivity() {
         binding.mainPlayerCl.setOnClickListener { startActivity(Intent(this, SongActivity::class.java)) }
         binding.mainPlayerCl.setOnClickListener {
             val intent = Intent(this, SongActivity::class.java)
-            val editor = getSharedPreferences(CODE.music, MODE_PRIVATE).edit()
-            editor.putInt(CODE.playingSongID, song.id)
+            val editor = getSharedPreferences(SongCode.music, MODE_PRIVATE).edit()
+            editor.putInt(SongCode.playingSongID, song.id)
             editor.apply()
 
-            intent.putExtra(CODE.playingSongID, song.id)
+            intent.putExtra(SongCode.playingSongID, song.id)
 
             startActivity(intent)
         }
@@ -67,7 +63,7 @@ class MainActivity : AppCompatActivity() {
     override fun onStart() {
         super.onStart()
 
-        val sharedPreference = getSharedPreferences(CODE.music, MODE_PRIVATE)
+        val sharedPreference = getSharedPreferences(SongCode.music, MODE_PRIVATE)
         val songId = sharedPreference.getInt(playingSongID,0)
 
         val songDB = SongDatabase.getInstance(this)!!
@@ -88,10 +84,10 @@ class MainActivity : AppCompatActivity() {
     override fun onPause() {
         super.onPause()
         setPlayerStatus(false)
-        val sharedPreference = getSharedPreferences(CODE.music, MODE_PRIVATE)
+        val sharedPreference = getSharedPreferences(SongCode.music, MODE_PRIVATE)
         val edit = sharedPreference.edit()
 
-        edit.putInt(CODE.playingSongID, song.id)
+        edit.putInt(SongCode.playingSongID, song.id)
         edit.apply()
     }
     override fun onDestroy() {
@@ -174,7 +170,7 @@ class MainActivity : AppCompatActivity() {
         val songDB = SongDatabase.getInstance(this)!!
         val songs = songDB.songDao().getSongs()
         val albums = songDB.albumDao().getAlbums()
-        val dbPlayList = songDB.playListDao().getPlayList(CODE.currentPlayList)
+        val dbPlayList = songDB.playListDao().getPlayList(SongCode.currentPlayList)
 
         if(songs.isEmpty()){
             songDB.songDao().insert(Song("라일락", "아이유 (IU)", 0, 60, false, 0f, "music_lilac", isTitle = true))
@@ -209,7 +205,7 @@ class MainActivity : AppCompatActivity() {
             val allSongs = songDB.songDao().getSongs()
             val list = List(allSongs.size){ index -> allSongs[index].id }
 
-            songDB.playListDao().insert(PlayList(Converter.listToString(list),CODE.currentPlayList))
+            songDB.playListDao().insert(PlayList(Converter.listToString(list),SongCode.currentPlayList))
         }
     }
 
