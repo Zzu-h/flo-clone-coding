@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.flo">
 
+    <uses-permission android:name="android.permission.INTERNET"/>
+
     <application
         android:allowBackup="false"
         android:icon="@mipmap/ic_flo_launcher"
@@ -9,9 +11,6 @@
         android:roundIcon="@mipmap/ic_flo_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.FLO">
-        <activity
-            android:name=".ui.SplashActivity"
-            android:exported="false" />
         <activity
             android:name=".ui.song.SongActivity"
             android:exported="false" />
@@ -23,8 +22,11 @@
             android:exported="false" />
         <activity
             android:name=".ui.main.MainActivity"
-            android:exported="true"
-            android:theme="@style/SplashTheme">
+            android:exported="false" />
+        <activity
+            android:name=".ui.SplashActivity"
+            android:exported="true">
+            <!--android:theme="@style/SplashTheme">-->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

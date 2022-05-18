@@ -2,9 +2,12 @@ package com.example.flo.ui.user.login
 
 import android.content.Intent
 import android.os.Bundle
+import android.os.Message
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
+import com.example.flo.data.datasource.AuthNetworkDataSource
 import com.example.flo.data.model.SongDatabase
 import com.example.flo.data.model.UserCode
 import com.example.flo.data.model.UserCode.auth
@@ -14,9 +17,10 @@ import com.example.flo.ui.user.signup.SignUpActivity
 import com.example.flo.data.vo.Result
 import com.example.flo.data.vo.User
 import com.example.flo.ui.main.MainActivity
+import com.example.flo.ui.user.signup.SignUpView
 
 
-class LoginActivity : AppCompatActivity(), LoginView {
+class LoginActivity : AppCompatActivity() {
     lateinit var binding: ActivityLoginBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -44,7 +48,7 @@ class LoginActivity : AppCompatActivity(), LoginView {
             return
         }
 
-        val email = binding.loginIdEt.text.toString() + "@" + binding.loginDirectInputEt.text.toString()
+        /*val email = binding.loginIdEt.text.toString() + "@" + binding.loginDirectInputEt.text.toString()
         val password = binding.loginPasswordEt.text.toString()
 
         val songDB = SongDatabase.getInstance(this)!!
@@ -57,7 +61,23 @@ class LoginActivity : AppCompatActivity(), LoginView {
             startMainActivity()
         }
         if(user == null)
-            Toast.makeText(this, "회원 정보가 존재하지 않습니다.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "회원 정보가 존재하지 않습니다.", Toast.LENGTH_SHORT).show()*/
+
+        AuthNetworkDataSource().login(getUser(), object : LoginView {
+            override fun onLoginSuccess(code : Int , result: Result?) {
+                when(code) {
+                    1000 -> {
+                        saveJwt2(result!!.jwt)
+                        startMainActivity()
+                    }
+                }
+            }
+
+            override fun onLoginFailure(message: String?) {
+                Toast.makeText(this@LoginActivity, message.toString(), Toast.LENGTH_SHORT)
+                    .show()
+            }
+        })
     }
 
     private fun getUser(): User {
@@ -88,19 +108,5 @@ class LoginActivity : AppCompatActivity(), LoginView {
 
         editor.putString(UserCode.jwt, jwt)
         editor.apply()
-    }
-
-    override fun onLoginSuccess(code : Int , result: Result) {
-        when(code) {
-            1000 -> {
-                saveJwt2(result.jwt)
-                startMainActivity()
-
-            }
-        }
-    }
-
-    override fun onLoginFailure() {
-
     }
 }

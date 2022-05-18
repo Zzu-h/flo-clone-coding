@@ -4,12 +4,15 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.example.flo.data.model.SongDatabase
+import androidx.core.view.isVisible
+import com.example.flo.data.datasource.AuthNetworkDataSource
+import com.example.flo.data.vo.AuthResponse
 import com.example.flo.data.vo.User
 import com.example.flo.databinding.ActivitySignupBinding
+import retrofit2.Call
 
 
-class SignUpActivity : AppCompatActivity() , SignUpView{
+class SignUpActivity : AppCompatActivity(){
 
     lateinit var binding: ActivitySignupBinding
 
@@ -39,23 +42,28 @@ class SignUpActivity : AppCompatActivity() , SignUpView{
             return
         }
 
+        if (binding.signUpNameEt.text.isEmpty()) {
+            Toast.makeText(this, "이름 형식이 잘못되었습니다.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
         if (binding.signUpPasswordEt.text.toString() != binding.signUpPasswordCheckEt.text.toString()) {
             Toast.makeText(this, "비밀번호가 일치하지 않습니다.", Toast.LENGTH_SHORT).show()
             return
         }
 
-        val userDB = SongDatabase.getInstance(this)!!
+        /*val userDB = SongDatabase.getInstance(this)!!
         userDB.userDao().insert(getUser())
 
         val users = userDB.userDao().getUsers()
-        Log.d("SIGNUPACT", users.toString())
-    }
+        Log.d("SIGNUPACT", users.toString())*/
 
-    override fun onSignUpSuccess() {
-        finish()
-    }
-
-    override fun onSignUpFailure() {
-        //실패처리
+        AuthNetworkDataSource().signUp(getUser(), object : SignUpView {
+            override fun onSignUpFailure(message: String?) {
+                binding.signUpEmailErrorTv.isVisible = true
+                binding.signUpEmailErrorTv.text = message
+            }
+            override fun onSignUpSuccess() = finish()
+        })
     }
 }

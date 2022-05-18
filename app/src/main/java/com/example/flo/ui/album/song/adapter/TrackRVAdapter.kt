@@ -6,10 +6,11 @@ import androidx.core.view.isGone
 import androidx.recyclerview.widget.RecyclerView
 import com.example.flo.databinding.ItemAlbumSongBinding
 import com.example.flo.data.vo.Song
+import com.example.flo.data.vo.TrackSong
 import java.util.ArrayList
 
-class TrackRVAdapter(private val trackList: ArrayList<Song>) : RecyclerView.Adapter<TrackRVAdapter.ViewHolder>(){
-    var onItemClick:(Song) -> Unit = {}
+class TrackRVAdapter(private val trackList: ArrayList<TrackSong>) : RecyclerView.Adapter<TrackRVAdapter.ViewHolder>(){
+    var onItemClick:(TrackSong) -> Unit = {}
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): ViewHolder
             = ViewHolder(ItemAlbumSongBinding.inflate(LayoutInflater.from(viewGroup.context), viewGroup, false))
@@ -23,10 +24,10 @@ class TrackRVAdapter(private val trackList: ArrayList<Song>) : RecyclerView.Adap
     override fun getItemCount(): Int = trackList.size
 
     inner class ViewHolder(val binding: ItemAlbumSongBinding): RecyclerView.ViewHolder(binding.root){
-        fun bind(song: Song){
+        fun bind(song: TrackSong){
             binding.itemSongTitleTv.text = song.title
             binding.itemSongSingerTv.text = song.singer
-            binding.isTitleTv.isGone = song.isTitle.not()
+            binding.isTitleTv.isGone = (song.isTitle == "F")
         }
     }
 }

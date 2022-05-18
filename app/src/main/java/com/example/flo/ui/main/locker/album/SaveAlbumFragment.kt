@@ -42,13 +42,13 @@ class SaveAlbumFragment : Fragment() {
 
         albumRVAdapter.setMyItemClickListener(object : AlbumLockerRVAdapter.MyItemClickListener{
             override fun onRemoveSong(songId: Int) {
-                albumDB.albumDao().getLikedAlbums(getJwt())
+                //albumDB.albumDao().getLikedAlbums(getJwt())
             }
         })
 
         binding.lockerSavedSongRecyclerView.adapter = albumRVAdapter
 
-        albumRVAdapter.addAlbums(albumDB.albumDao().getLikedAlbums(getJwt()) as ArrayList)
+        //albumRVAdapter.addAlbums(albumDB.albumDao().getLikedAlbums(getJwt()) as ArrayList)
     }
 
     private fun getJwt() : Int {

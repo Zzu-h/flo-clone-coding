@@ -42,8 +42,8 @@ class LockerFragment : Fragment() {
         val songDB = SongDatabase.getInstance(requireContext())!!
         val userId = getJwt()
 
-        val likedAlbums = songDB.albumDao().getLikedAlbums(userId)
-        Log.d("LOKERFRAG/GET_ALBUMS", likedAlbums.toString())
+        /*val likedAlbums = songDB.albumDao().getLikedAlbums(userId)
+        Log.d("LOKERFRAG/GET_ALBUMS", likedAlbums.toString())*/
 
         return binding.root
     }

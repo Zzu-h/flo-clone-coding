@@ -97,7 +97,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun playAlbum(album: Album){
-        val idList = Converter.stringToList(album.songIdList)
+        /*val idList = Converter.stringToList(album.songIdList)
         this.playList = mutableListOf()
 
         playListPos = 0
@@ -112,7 +112,7 @@ class MainActivity : AppCompatActivity() {
         song = playList[playListPos]
         song.isPlaying = true
 
-        setMiniPlayer(song)
+        setMiniPlayer(song)*/
     }
 
     private fun initBottomNavigation(){
@@ -169,7 +169,7 @@ class MainActivity : AppCompatActivity() {
     private fun inputDummies(){
         val songDB = SongDatabase.getInstance(this)!!
         val songs = songDB.songDao().getSongs()
-        val albums = songDB.albumDao().getAlbums()
+        //val albums = songDB.albumDao().getAlbums()
         val dbPlayList = songDB.playListDao().getPlayList(SongCode.currentPlayList)
 
         if(songs.isEmpty()){
@@ -182,7 +182,7 @@ class MainActivity : AppCompatActivity() {
             songDB.songDao().insert(Song("작은 것들을 위한 시", "BTS", 0, 60, false, 0f, "music_boy", isTitle = true, coverImg = R.drawable.img_album_exp4))
             songDB.songDao().insert(Song("Butter", "BTS", 0, 60, false, 0f, "music_butter", isTitle = true, coverImg = R.drawable.img_album_exp))
         }
-        if(albums.isEmpty()){
+        /*if(albums.isEmpty()){
             val allSongs = songDB.songDao().getSongs()
             val IUlist = mutableListOf<Song>()
             val BTSlist = mutableListOf<Song>()
@@ -200,7 +200,7 @@ class MainActivity : AppCompatActivity() {
                 else songDB.albumDao().insert(Album(songIdList = Converter.listToString(List(1) { song.id }), title = "MAP OF THE SOUL : PERSONA", singer = "BTS", coverImg = R.drawable.img_album_exp4))
             }
 
-        }
+        }*/
         if(dbPlayList == null || dbPlayList.isEmpty()){
             val allSongs = songDB.songDao().getSongs()
             val list = List(allSongs.size){ index -> allSongs[index].id }

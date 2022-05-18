@@ -7,8 +7,8 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.widget.ViewPager2
 import com.example.flo.R
+import com.example.flo.data.datasource.AlbumNetworkDataSource
 import com.example.flo.data.model.SongCode
-import com.example.flo.data.model.SongDatabase
 import com.example.flo.ui.main.home.adapter.AlbumRVAdapter
 import com.example.flo.ui.main.home.adapter.BannerVPAdapter
 import com.example.flo.ui.main.home.adapter.PanelVPAdapter
@@ -78,14 +78,23 @@ class HomeFragment : Fragment() {
         }
     }
     private fun setRecyclerView(){
-        val songdb = SongDatabase.getInstance(this.requireContext())!!
-        albumDatas = songdb.albumDao().getAlbums() as ArrayList<Album>
+        /*val songdb = SongDatabase.getInstance(this.requireContext())!!
+        albumDatas = songdb.albumDao().getAlbums() as ArrayList<Album>*/
 
-        binding.homeTodayMusicAlbumRv.adapter = AlbumRVAdapter(albumDatas)
-            .apply {
-                onItemClick = this@HomeFragment::albumItemClick
-                playAlbum = this@HomeFragment::playAlbum
+        AlbumNetworkDataSource().getAlbums(object: AlbumNetworkDataSource.AlbumInterface {
+            override fun onLoadSuccess(albumList: List<Album>) {
+                albumDatas = albumList as ArrayList<Album>
+                binding.homeTodayMusicAlbumRv.adapter = AlbumRVAdapter(albumDatas)
+                    .apply {
+                        onItemClick = this@HomeFragment::albumItemClick
+                        playAlbum = this@HomeFragment::playAlbum
+                    }
             }
+
+            override fun onLoadFailure(message: String?) {
+                TODO("Not yet implemented")
+            }
+        })
     }
     private fun playAlbum(album: Album)
         = (context as MainActivity).playAlbum(album)

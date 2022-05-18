@@ -1,9 +1,11 @@
 package com.example.flo.ui.main.locker.album.adapter
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.flo.data.vo.Album
 import com.example.flo.databinding.ItemLockerAlbumBinding
 
@@ -23,13 +25,13 @@ class AlbumLockerRVAdapter (): RecyclerView.Adapter<AlbumLockerRVAdapter.ViewHol
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): ViewHolder {
         val binding: ItemLockerAlbumBinding = ItemLockerAlbumBinding.inflate(LayoutInflater.from(viewGroup.context), viewGroup, false)
 
-        return ViewHolder(binding)
+        return ViewHolder(binding, viewGroup.context)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.bind(albums[position])
         holder.binding.itemAlbumMoreIv.setOnClickListener {
-            mItemClickListener.onRemoveSong(albums[position].id)
+            mItemClickListener.onRemoveSong(albums[position].albumIdx)
             removeSong(position)
         }
     }
@@ -49,9 +51,12 @@ class AlbumLockerRVAdapter (): RecyclerView.Adapter<AlbumLockerRVAdapter.ViewHol
         notifyDataSetChanged()
     }
 
-    inner class ViewHolder(val binding: ItemLockerAlbumBinding) : RecyclerView.ViewHolder(binding.root){
+    inner class ViewHolder(val binding: ItemLockerAlbumBinding, val context: Context) : RecyclerView.ViewHolder(binding.root){
         fun bind(album: Album){
-            binding.itemAlbumImgIv.setImageResource(album.coverImg!!)
+            Glide.with(context)
+                .load(album.coverImgUrl)
+                .into(binding.itemAlbumImgIv)
+            //binding.itemAlbumImgIv.setImageResource(album.coverImg!!)
             binding.itemAlbumTitleTv.text = album.title
             binding.itemAlbumSingerTv.text = album.singer
         }

@@ -10,10 +10,10 @@ import com.example.flo.data.dao.SongDao
 import com.example.flo.data.dao.UserDao
 import com.example.flo.data.vo.*
 
-@Database(entities = [Song::class, Album::class, PlayList::class, User::class, Like::class], version = 1)
+@Database(entities = [Song::class, PlayList::class, User::class, Like::class], version = 1)
 abstract class SongDatabase: RoomDatabase() {
     abstract fun songDao(): SongDao
-    abstract fun albumDao(): AlbumDao
+    //abstract fun albumDao(): AlbumDao
     abstract fun playListDao(): PlayListDao
     abstract fun userDao(): UserDao
 

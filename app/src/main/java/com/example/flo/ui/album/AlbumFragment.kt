@@ -7,7 +7,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import com.bumptech.glide.Glide
 import com.example.flo.R
+import com.example.flo.data.model.SongCode
 import com.example.flo.data.model.SongDatabase
 import com.example.flo.data.model.UserCode.auth
 import com.example.flo.data.model.UserCode.jwt
@@ -36,10 +38,10 @@ class AlbumFragment : Fragment() {
         val gson = Gson()
 
         val album = gson.fromJson(albumData, Album::class.java)
-        isLiked = isLikedAlbum(album.id)
+        isLiked = isLikedAlbum(album.albumIdx)
 
         setViews(album)
-        initViewPager()
+        initViewPager(album.albumIdx)
         setClickListeners(album)
 
         return binding.root
@@ -48,11 +50,16 @@ class AlbumFragment : Fragment() {
     private fun setViews(album: Album) {
         binding.albumMusicTitleTv.text = album.title.toString()
         binding.albumSingerNameTv.text = album.singer.toString()
-        binding.albumAlbumIv.setImageResource(album.coverImg)
+        //binding.albumAlbumIv.setImageResource(album.coverImg)
+        Glide.with(this)
+            .load(album.coverImgUrl)
+            .into(binding.albumAlbumIv)
+
         binding.albumLikeIv.setImageResource(
             if(isLiked) R.drawable.ic_my_like_on
             else R.drawable.ic_my_like_off
         )
+
     }
 
     private fun setClickListeners(album: Album) {
@@ -61,10 +68,10 @@ class AlbumFragment : Fragment() {
         binding.albumLikeIv.setOnClickListener {
             if(isLiked) {
                 binding.albumLikeIv.setImageResource(R.drawable.ic_my_like_off)
-                disLikeAlbum(userId, album.id)
+                disLikeAlbum(userId, album.albumIdx)
             } else {
                 binding.albumLikeIv.setImageResource(R.drawable.ic_my_like_on)
-                likeAlbum(userId, album.id)
+                likeAlbum(userId, album.albumIdx)
             }
 
             isLiked = !isLiked
@@ -78,9 +85,12 @@ class AlbumFragment : Fragment() {
         }
     }
 
-    private fun initViewPager() {
+    private fun initViewPager(albumId: Int) {
         //init viewpager
         val albumAdapter = AlbumVPAdapter(this)
+        albumAdapter.songFragment.apply {
+            arguments = Bundle().apply { putInt("id", albumId) }
+        }
 
         binding.albumContentVp.adapter = albumAdapter
         TabLayoutMediator(binding.albumContentTb, binding.albumContentVp) { tab, position ->
@@ -90,23 +100,23 @@ class AlbumFragment : Fragment() {
 
     private fun disLikeAlbum(userId: Int, albumId: Int) {
         val songDB = SongDatabase.getInstance(requireContext())!!
-        songDB.albumDao().disLikeAlbum(userId, albumId)
+        //songDB.albumDao().disLikeAlbum(userId, albumId)
     }
 
     private fun likeAlbum(userId: Int, albumId: Int) {
         val songDB = SongDatabase.getInstance(requireContext())!!
         val like = Like(userId, albumId)
 
-        songDB.albumDao().likeAlbum(like)
+        //songDB.albumDao().likeAlbum(like)
     }
 
     private fun isLikedAlbum(albumId: Int): Boolean {
         val songDB = SongDatabase.getInstance(requireContext())!!
         val userId = getJwt()
 
-        val likeId: Int? = songDB.albumDao().isLikedAlbum(userId, albumId)
+        //val likeId: Int? = songDB.albumDao().isLikedAlbum(userId, albumId)
 
-        return likeId != null
+        return false//likeId != null
     }
 
     private fun getJwt(): Int {
