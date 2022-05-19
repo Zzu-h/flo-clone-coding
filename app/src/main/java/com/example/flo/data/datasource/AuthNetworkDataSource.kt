@@ -26,11 +26,10 @@ class AuthNetworkDataSource {
             override fun onFailure(call: Call<AuthResponse>, t: Throwable)
                 = signUpView.onSignUpFailure(t.message)
             override fun onResponse(call: Call<AuthResponse>, response: Response<AuthResponse>){
-                Log.d(success,response.toString())
                 val resp = response.body() as AuthResponse
                 when(resp.code){
                     1000 -> signUpView.onSignUpSuccess()
-                    2016, 2018 -> signUpView.onSignUpFailure(resp.message)
+                    else -> signUpView.onSignUpFailure(resp.message)
                 }
             }
         })

@@ -23,7 +23,6 @@ class SignUpActivity : AppCompatActivity(){
 
         binding.signUpSignUpBtn.setOnClickListener {
             signUp()
-            finish()
         }
     }
 
@@ -62,6 +61,7 @@ class SignUpActivity : AppCompatActivity(){
             override fun onSignUpFailure(message: String?) {
                 binding.signUpEmailErrorTv.isVisible = true
                 binding.signUpEmailErrorTv.text = message
+                Toast.makeText(this@SignUpActivity, message, Toast.LENGTH_SHORT).show()
             }
             override fun onSignUpSuccess() = finish()
         })
